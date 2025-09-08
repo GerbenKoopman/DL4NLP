@@ -1,0 +1,8 @@
+# All dataset files
+datasets/
+
+# All vscode files
+.vscode/
+
+# All tar balls
+*.tar.gz
