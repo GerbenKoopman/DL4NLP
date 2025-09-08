@@ -7,8 +7,9 @@ dependencies:
   - pip
   - pip:
     - numpy
+    - pandas
     - torch
     - transformers
     - ipykernel
     - jupyter
-    - pandas
+    - python-dotenv
