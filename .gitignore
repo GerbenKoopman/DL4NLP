@@ -6,3 +6,6 @@ datasets/
 
 # All tar balls
 *.tar.gz
+
+# Environment file
+.env
