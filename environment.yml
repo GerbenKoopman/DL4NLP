@@ -11,3 +11,4 @@ dependencies:
     - transformers
     - ipykernel
     - jupyter
+    - pandas
