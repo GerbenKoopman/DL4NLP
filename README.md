@@ -10,4 +10,4 @@ This is a sequence to sequence task. You will create a multilingual model that t
 
 ### Dataset
 
-Multilingual TED corpus (see <http://aclweb.org/anthology/N18-2084Links> to an external site. for description), download at <http://phontron.com/data/ted_talks.tar.gzLinks> to an external site.
+Multilingual TED corpus (see <http://aclweb.org/anthology/N18-2084> to an external site. for description), download at <http://phontron.com/data/ted_talks.tar.gzLinks> to an external site.
