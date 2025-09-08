@@ -13,3 +13,4 @@ dependencies:
     - ipykernel
     - jupyter
     - python-dotenv
+    - accelerate
