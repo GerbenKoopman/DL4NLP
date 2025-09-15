@@ -2,12 +2,20 @@
 
 Repository for course mini-project.
 
-## Project 5: Multilingual Neural Machine Translation for Low-Resource Languages
+## Multilingual Neural Machine Translation for Low-Resource Languages
 
 ### Project description
 
-This is a sequence to sequence task. You will create a multilingual model that translates two low-resource languages (Azerbaijani, Belarusian) to and from English. Most existing multilingual models share all parameters and use a target language token to signal the target language, e.g.  How are you? -> ¿Cómo estás? will be modified to <2es> How are you? -> ¿Cómo estás?
+We investigate whether meta-learning on Azerbaijani-English and Belarusian-English translation pairs can enable rapid few-shot adaptation to closely related languages (Turkish, Ukrainian) with minimal parallel data. Specifically, can meta-learning with Reptile on pre-chosen language pairs improve few-shot performance on linguistically similar languages?
+
+### Hypothesis
+
+Our hypothesis is that meta-learned representations from the base multilingual NMT model will transfer more effectively to related languages within the same family (Azerbaijani $\to$ Turkish, Belarusian $\to$ Ukrainian) compared to cross-family transfers.
 
 ### Dataset
 
-Multilingual TED corpus (see <http://aclweb.org/anthology/N18-2084> to an external site. for description), download at <http://phontron.com/data/ted_talks.tar.gzLinks> to an external site.
+As our dataset we will use the [TED Talks multilingual corpus](http://aclweb.org/anthology/N18-2084), download at <http://phontron.com/data/ted_talks.tar.gz>, containing translated sentences in 60 languages. This will provide the data for the meta-learning task, as well as a held-out validation set.
+
+### Technologies
+
+We intend to use Reptile meta-learning, with LoRA if this proves necessary for the finetuning of a model like Gemma 3 1B or Gemma 3 270m.
