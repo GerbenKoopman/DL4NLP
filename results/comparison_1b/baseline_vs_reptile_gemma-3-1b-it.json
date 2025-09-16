@@ -1,0 +1,152 @@
+{
+  "baseline_model": "google/gemma-3-1b-it",
+  "reptile_model": "google/gemma-3-1b-it",
+  "task_comparisons": {
+    "az_tr": {
+      "baseline_zero_shot": 0.0,
+      "reptile_zero_shot": 1.7624145553100001,
+      "reptile_few_shot_5": 3.521650300920362,
+      "zero_shot_improvement": 1.7624145553100001,
+      "few_shot_improvement": 3.521650300920362
+    },
+    "be_uk": {
+      "baseline_zero_shot": 0.0,
+      "reptile_zero_shot": 2.2852790035572506,
+      "reptile_few_shot_5": 2.615535526931717,
+      "zero_shot_improvement": 2.2852790035572506,
+      "few_shot_improvement": 2.615535526931717
+    },
+    "tr_az": {
+      "baseline_zero_shot": 0.0,
+      "reptile_zero_shot": 1.4310456865800045,
+      "reptile_few_shot_5": 2.635572968810705,
+      "zero_shot_improvement": 1.4310456865800045,
+      "few_shot_improvement": 2.635572968810705
+    },
+    "az_en": {
+      "baseline_zero_shot": 1.5792637844411486,
+      "reptile_zero_shot": 5.039677021079473,
+      "reptile_few_shot_5": 0.0,
+      "zero_shot_improvement": 3.460413236638324,
+      "few_shot_improvement": -1.5792637844411486
+    },
+    "uk_tr": {
+      "baseline_zero_shot": 0.0,
+      "reptile_zero_shot": 1.166683466822508,
+      "reptile_few_shot_5": 0.0,
+      "zero_shot_improvement": 1.166683466822508,
+      "few_shot_improvement": 0.0
+    },
+    "en_be": {
+      "baseline_zero_shot": 0.01029747992343325,
+      "reptile_zero_shot": 3.2318731617924947,
+      "reptile_few_shot_5": 0.0,
+      "zero_shot_improvement": 3.2215756818690613,
+      "few_shot_improvement": -0.01029747992343325
+    },
+    "az_be": {
+      "baseline_zero_shot": 0.0,
+      "reptile_zero_shot": 0.6146510401905587,
+      "reptile_few_shot_5": 0.0,
+      "zero_shot_improvement": 0.6146510401905587,
+      "few_shot_improvement": 0.0
+    },
+    "tr_uk": {
+      "baseline_zero_shot": 0.0,
+      "reptile_zero_shot": 1.4465327906067877,
+      "reptile_few_shot_5": 0.0,
+      "zero_shot_improvement": 1.4465327906067877,
+      "few_shot_improvement": 0.0
+    },
+    "uk_en": {
+      "baseline_zero_shot": 1.0628346831796622,
+      "reptile_zero_shot": 6.298461944219707,
+      "reptile_few_shot_5": 10.612197869455795,
+      "zero_shot_improvement": 5.235627261040046,
+      "few_shot_improvement": 9.549363186276132
+    },
+    "en_tr": {
+      "baseline_zero_shot": 0.0060721317978021045,
+      "reptile_zero_shot": 4.19343735878347,
+      "reptile_few_shot_5": 4.77329392474787,
+      "zero_shot_improvement": 4.187365226985667,
+      "few_shot_improvement": 4.7672217929500675
+    },
+    "be_en": {
+      "baseline_zero_shot": 3.169781986534973,
+      "reptile_zero_shot": 8.76900298611723,
+      "reptile_few_shot_5": 0.0,
+      "zero_shot_improvement": 5.599220999582256,
+      "few_shot_improvement": -3.169781986534973
+    },
+    "az_uk": {
+      "baseline_zero_shot": 0.0,
+      "reptile_zero_shot": 1.410398554577189,
+      "reptile_few_shot_5": 0.11641504472738604,
+      "zero_shot_improvement": 1.410398554577189,
+      "few_shot_improvement": 0.11641504472738604
+    },
+    "uk_az": {
+      "baseline_zero_shot": 0.0,
+      "reptile_zero_shot": 0.17595032313298156,
+      "reptile_few_shot_5": 2.1248408302921784,
+      "zero_shot_improvement": 0.17595032313298156,
+      "few_shot_improvement": 2.1248408302921784
+    },
+    "en_az": {
+      "baseline_zero_shot": 8.432506409764263e-06,
+      "reptile_zero_shot": 0.10130924374745333,
+      "reptile_few_shot_5": 0.0,
+      "zero_shot_improvement": 0.10130081124104356,
+      "few_shot_improvement": -8.432506409764263e-06
+    },
+    "tr_be": {
+      "baseline_zero_shot": 0.0,
+      "reptile_zero_shot": 2.3595082264834577,
+      "reptile_few_shot_5": 0.10610983214827659,
+      "zero_shot_improvement": 2.3595082264834577,
+      "few_shot_improvement": 0.10610983214827659
+    },
+    "be_tr": {
+      "baseline_zero_shot": 0.0,
+      "reptile_zero_shot": 2.061582147297317,
+      "reptile_few_shot_5": 2.5069672246697454,
+      "zero_shot_improvement": 2.061582147297317,
+      "few_shot_improvement": 2.5069672246697454
+    },
+    "tr_en": {
+      "baseline_zero_shot": 1.9070964317432069,
+      "reptile_zero_shot": 12.429786530226508,
+      "reptile_few_shot_5": 11.939729366275419,
+      "zero_shot_improvement": 10.5226900984833,
+      "few_shot_improvement": 10.032632934532211
+    },
+    "en_uk": {
+      "baseline_zero_shot": 0.5052841610485945,
+      "reptile_zero_shot": 4.389471044178294,
+      "reptile_few_shot_5": 2.378009541258961,
+      "zero_shot_improvement": 3.8841868831296997,
+      "few_shot_improvement": 1.8727253802103663
+    },
+    "uk_be": {
+      "baseline_zero_shot": 0.0,
+      "reptile_zero_shot": 2.36709476450399,
+      "reptile_few_shot_5": 3.201072948305412,
+      "zero_shot_improvement": 2.36709476450399,
+      "few_shot_improvement": 3.201072948305412
+    },
+    "be_az": {
+      "baseline_zero_shot": 0.0,
+      "reptile_zero_shot": 0.19188162707399437,
+      "reptile_few_shot_5": 0.0,
+      "zero_shot_improvement": 0.19188162707399437,
+      "few_shot_improvement": 0.0
+    }
+  },
+  "summary": {
+    "avg_few_shot_improvement": 1.9145378143684297,
+    "avg_zero_shot_improvement": 2.674270119255272,
+    "tasks_improved_few_shot": 12,
+    "total_tasks": 20
+  }
+}

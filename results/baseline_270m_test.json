@@ -1,0 +1,56 @@
+{
+  "model_name": "google/gemma-3-270m-it",
+  "evaluation_type": "zero_shot_baseline",
+  "results": {
+    "az_en": {
+      "bleu": 0.0,
+      "chrf": 0.0,
+      "count": 5
+    },
+    "en_az": {
+      "bleu": 0.0,
+      "chrf": 0.0,
+      "count": 5
+    },
+    "be_en": {
+      "bleu": 0.0,
+      "chrf": 0.0,
+      "count": 5
+    },
+    "en_be": {
+      "bleu": 0.0,
+      "chrf": 0.0,
+      "count": 5
+    },
+    "tr_en": {
+      "bleu": 0.0,
+      "chrf": 0.0,
+      "count": 5
+    },
+    "en_tr": {
+      "bleu": 0.0,
+      "chrf": 0.0,
+      "count": 5
+    },
+    "uk_en": {
+      "bleu": 0.0,
+      "chrf": 0.0,
+      "count": 5
+    },
+    "en_uk": {
+      "bleu": 0.0,
+      "chrf": 0.0,
+      "count": 5
+    }
+  },
+  "averages": {
+    "base_languages": {
+      "bleu": 0.0,
+      "chrf": 0.0
+    },
+    "target_languages": {
+      "bleu": 0.0,
+      "chrf": 0.0
+    }
+  }
+}

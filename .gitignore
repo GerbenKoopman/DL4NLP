@@ -9,3 +9,5 @@ datasets/
 
 # Environment file
 .env
+.cursor/
+__pycache__/
