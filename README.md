@@ -42,4 +42,39 @@ python3 evaluate_reptile.py --model 1b --data_dir datasets --output_dir results/
 
 # 6. Compare with baseline
 python3 evaluate_reptile.py --model 1b --data_dir datasets --output_dir results/comparison_1b --baseline_file results/baseline_1b.json
+
+# 7. Generate plots
+python3 analyze_results.py --results_dir results --plots_dir results/plots
 ```
+
+### Results analysis options
+
+You can filter what gets plotted:
+
+- Training history filters:
+  - Only specific series (task types) and hide meta average:
+    ```bash
+    python analyze_results.py --train_tasks be_en,en_be --no_meta_average
+    ```
+  - Include meta average plus selected series:
+    ```bash
+    python analyze_results.py --train_tasks be_en,en_be,meta_average
+    ```
+
+- Evaluation summary filters:
+  - Focus on transfer to target languages only (recommended):
+    ```bash
+    python analyze_results.py --tasks az_tr,be_uk --eval_types transfer_1,transfer_5
+    ```
+  - Base language few-shot focus:
+    ```bash
+    python analyze_results.py --tasks az_en,en_az,be_en,en_be --eval_types zero_shot,few_shot_1,few_shot_5
+    ```
+  - Single task, all evaluation types:
+    ```bash
+    python analyze_results.py --tasks az_tr
+    ```
+  - Plot everything (default):
+    ```bash
+    python analyze_results.py
+    ```
