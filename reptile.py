@@ -34,7 +34,6 @@ class ReptileConfig:
     )
     gemma_model: str = "google/gemma-3-270m-it"  # Gemma model name
     max_length: int = 128  # Max generation length
-    temperature: float = 0.7  # Generation temperature
 
     # Language configuration for project
     base_langs: Optional[List[str]] = None  # Azerbaijani, Belarusian, English
@@ -122,7 +121,6 @@ class ReptileMetaLearner:
                     query["target_lang"],
                     few_shot_examples=adaptation_context,
                     max_length=self.config.max_length,
-                    temperature=self.config.temperature,
                 )
 
                 # Evaluate translation quality

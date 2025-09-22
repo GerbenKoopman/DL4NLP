@@ -141,7 +141,6 @@ class BaselineEvaluator:
                     target_lang,
                     few_shot_examples=None,  # Zero-shot
                     max_length=32,  # Very short for testing
-                    temperature=0.0,  # Greedy decoding for stability
                 )
 
                 translations.append(translation)
