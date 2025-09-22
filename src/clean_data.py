@@ -10,6 +10,8 @@ import logging
 from pathlib import Path
 from typing import List, Dict
 
+from paths import paths
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -17,8 +19,7 @@ logger = logging.getLogger(__name__)
 class TEDDataCleaner:
     """Clean and prepare TED talk data for meta-learning tasks"""
 
-    def __init__(self, data_dir: str = "datasets"):
-        self.data_dir = Path(data_dir)
+    def __init__(self):
         # Target languages for meta-learning
         self.base_langs = ["az", "be", "en"]  # Azerbaijani, Belarusian, English
         self.target_langs = ["tr", "uk"]  # Turkish, Ukrainian (for evaluation)
@@ -31,7 +32,7 @@ class TEDDataCleaner:
 
     def clean_dataset(self, split_name: str) -> pd.DataFrame:
         """Clean a single dataset split based on language pairs."""
-        file_path = self.data_dir / f"all_talks_{split_name}.tsv"
+        file_path = paths.data_dir / f"all_talks_{split_name}.tsv"
 
         if not file_path.exists():
             raise FileNotFoundError(f"Dataset file not found: {file_path}")
@@ -111,7 +112,7 @@ class TEDDataCleaner:
                 continue
 
             # Save the cleaned dataframe to a pickle file
-            output_path = self.data_dir / f"{group_name}_{split_name}.pkl"
+            output_path = paths.data_dir / f"{group_name}_{split_name}.pkl"
             cleaned_group_df.to_pickle(output_path)
             logger.info(f"Saved {len(cleaned_group_df)} rows to {output_path}")
 
@@ -133,7 +134,6 @@ class TEDDataCleaner:
 
 def main():
     parser = argparse.ArgumentParser(description="Clean TED talk data")
-    parser.add_argument("--data_dir", default="datasets", help="Data directory")
     parser.add_argument(
         "--split",
         choices=["train", "dev", "test", "all"],
@@ -143,7 +143,7 @@ def main():
 
     args = parser.parse_args()
 
-    cleaner = TEDDataCleaner(args.data_dir)
+    cleaner = TEDDataCleaner()
 
     if args.split == "all":
         cleaner.process_all_splits()

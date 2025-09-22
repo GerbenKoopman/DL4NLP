@@ -9,15 +9,12 @@ import pickle
 import argparse
 from pathlib import Path
 from typing import Dict, List, Optional
-import sys
 import os
 from dotenv import load_dotenv
 
-# Add project root to path
-sys.path.append(str(Path(__file__).parent))
-
 from evaluation import TranslationEvaluator
 from cache import get_cached_gemma_model
+from paths import paths
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -29,12 +26,10 @@ class BaselineEvaluator:
     def __init__(
         self,
         model_name: str,
-        data_dir: str = "datasets",
         token: Optional[str] = None,
         language_groups: Optional[List[str]] = None,
     ):
         self.model_name = model_name
-        self.data_dir = Path(data_dir)
         self.evaluator = TranslationEvaluator()
         self.model = None
         self.token = token
@@ -69,7 +64,7 @@ class BaselineEvaluator:
             raise ValueError("No language groups specified for evaluation.")
 
         for group in self.language_groups:
-            test_file = self.data_dir / f"{group}_test.pkl"
+            test_file = paths.data_dir / f"{group}_test.pkl"
 
             if not test_file.exists():
                 logger.warning(f"Could not find {test_file}. Skipping this group.")
@@ -311,10 +306,9 @@ def main():
     parser.add_argument(
         "--model", choices=["270m", "1b"], default="270m", help="Model size to evaluate"
     )
-    parser.add_argument("--data_dir", default="datasets", help="Data directory")
     parser.add_argument(
         "--output",
-        default="results/baseline_results.json",
+        default=str(paths.baseline_results),
         help="Output file for results",
     )
     parser.add_argument(
@@ -343,7 +337,7 @@ def main():
 
     # Run evaluation
     evaluator = BaselineEvaluator(
-        model_name, args.data_dir, token=token, language_groups=args.language_groups
+        model_name, token=token, language_groups=args.language_groups
     )
     results = evaluator.run_baseline_evaluation(args.output, args.max_examples)
 

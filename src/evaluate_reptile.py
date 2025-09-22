@@ -9,15 +9,12 @@ import pickle
 import argparse
 from pathlib import Path
 from typing import Dict, List, Optional
-import sys
 import os
 from dotenv import load_dotenv
 
-# Add project root to path
-sys.path.append(str(Path(__file__).parent))
-
 from reptile import ReptileMetaLearner, ReptileConfig
 from clean_data import TEDDataCleaner
+from paths import paths
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -31,12 +28,10 @@ class ReptileEvaluator:
     def __init__(
         self,
         config: ReptileConfig,
-        data_dir: str = "datasets",
         token: Optional[str] = None,
         language_groups: Optional[List[str]] = None,
     ):
         self.config = config
-        self.data_dir = Path(data_dir)
         self.meta_learner = ReptileMetaLearner(config, token=token)
         self.language_groups = language_groups or []
 
@@ -48,7 +43,7 @@ class ReptileEvaluator:
             raise ValueError("No language groups specified for evaluation.")
 
         for group in self.language_groups:
-            test_file = self.data_dir / f"{group}_test.pkl"
+            test_file = paths.data_dir / f"{group}_test.pkl"
 
             if not test_file.exists():
                 logger.info(
@@ -101,7 +96,7 @@ class ReptileEvaluator:
     def _process_raw_data(self):
         """Process raw TED data if processed data doesn't exist"""
         logger.info("Processing raw TED talk data...")
-        cleaner = TEDDataCleaner(str(self.data_dir))
+        cleaner = TEDDataCleaner()
         cleaner.process_all_splits()
         logger.info("Data processing completed")
 
@@ -346,8 +341,11 @@ def main():
     parser.add_argument(
         "--model", choices=["270m", "1b"], default="270m", help="Model size to evaluate"
     )
-    parser.add_argument("--data_dir", default="datasets", help="Data directory")
-    parser.add_argument("--output_dir", default="results", help="Output directory")
+    parser.add_argument(
+        "--output_dir",
+        default=str(paths.results_dir),
+        help="Output directory",
+    )
     parser.add_argument("--baseline_file", help="Baseline results file for comparison")
     parser.add_argument(
         "--support_size",
@@ -378,7 +376,7 @@ def main():
 
     # Initialize evaluator
     evaluator = ReptileEvaluator(
-        config, args.data_dir, token=token, language_groups=args.language_groups
+        config, token=token, language_groups=args.language_groups
     )
 
     try:

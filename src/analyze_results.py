@@ -17,6 +17,8 @@ from typing import List, Optional
 import pandas as pd
 import matplotlib.pyplot as plt
 
+from paths import paths
+
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
@@ -173,12 +175,13 @@ def summarize_comparison(json_path: Path, out_dir: Path) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Analyze and visualize DL4NLP results")
-    parser.add_argument(
-        "--results_dir", default="results", help="Path to results directory"
-    )
-    parser.add_argument(
-        "--plots_dir", default="results/plots", help="Where to save plots"
-    )
+    # No longer needed, using paths object
+    # parser.add_argument(
+    #     "--results_dir", default="results", help="Path to results directory"
+    # )
+    # parser.add_argument(
+    #     "--plots_dir", default="results/plots", help="Where to save plots"
+    # )
     # Training history filters
     parser.add_argument(
         "--train_tasks",
@@ -202,8 +205,8 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    results_dir = Path(args.results_dir).resolve()
-    plots_dir = Path(args.plots_dir).resolve()
+    results_dir = paths.results_dir
+    plots_dir = results_dir / "plots"
     ensure_dir(plots_dir)
 
     # 1) Training histories
