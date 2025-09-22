@@ -82,7 +82,7 @@ class GemmaTranslationModel:
             self.model = AutoModelForCausalLM.from_pretrained(
                 self.model_name,
                 device_map=device_map,
-                torch_dtype=model_dtype,
+                dtype=model_dtype,
                 attn_implementation="eager",  # Use eager attention to avoid issues
                 low_cpu_mem_usage=True,
                 token=token,
