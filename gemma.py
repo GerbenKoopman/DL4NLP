@@ -19,8 +19,8 @@ class GemmaTranslationModel:
     def __init__(
         self,
         model_name: str = "google/gemma-3-1b-it",
-        device: str | None = None,
-        token: str | None = None,
+        device: Optional[str] = None,
+        token: Optional[str] = None,
     ):
         self.model_name = model_name
         self.token = token

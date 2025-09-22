@@ -37,8 +37,8 @@ class ReptileConfig:
     temperature: float = 0.7  # Generation temperature
 
     # Language configuration for project
-    base_langs: List[str] | None = None  # Azerbaijani, Belarusian, English
-    target_langs: List[str] | None = None  # Turkish, Ukrainian
+    base_langs: Optional[List[str]] = None  # Azerbaijani, Belarusian, English
+    target_langs: Optional[List[str]] = None  # Turkish, Ukrainian
 
     def __post_init__(self):
         if self.base_langs is None:
