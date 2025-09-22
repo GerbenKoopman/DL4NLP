@@ -8,7 +8,7 @@ import logging
 import pickle
 import argparse
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
 import sys
 import os
 from dotenv import load_dotenv
@@ -29,36 +29,85 @@ class ReptileTrainer:
     """Train Gemma models using Reptile meta-learning"""
 
     def __init__(
-        self, config: ReptileConfig, data_dir: str = "datasets", token: str = None
+        self,
+        config: ReptileConfig,
+        data_dir: str = "datasets",
+        token: Optional[str] = None,
+        language_groups: Optional[List[str]] = None,
     ):
         self.config = config
         self.data_dir = Path(data_dir)
         self.meta_learner = ReptileMetaLearner(config, token=token)
+        self.language_groups = language_groups or []
 
     def load_training_data(self) -> List[Dict]:
-        """Load and prepare training data"""
-        train_file = self.data_dir / "train_tasks.pkl"
+        """Load and prepare training data from specified language groups."""
+        all_tasks = []
 
-        if not train_file.exists():
-            logger.info("Training data not found. Processing raw data...")
-            self._process_raw_data()
+        if not self.language_groups:
+            raise ValueError("No language groups specified for training.")
 
-        logger.info(f"Loading training data from {train_file}")
-        with open(train_file, "rb") as f:
-            train_tasks = pickle.load(f)
+        for group in self.language_groups:
+            train_file = self.data_dir / f"{group}_train.pkl"
+
+            if not train_file.exists():
+                logger.info(
+                    f"Training data file not found: {train_file}. Processing raw data..."
+                )
+                self._process_raw_data()
+
+            if not train_file.exists():
+                logger.warning(
+                    f"Could not generate or find {train_file}. Skipping this group."
+                )
+                continue
+
+            logger.info(f"Loading training data from {train_file}")
+            with open(train_file, "rb") as f:
+                df = pickle.load(f)
+                # Convert DataFrame to list of dictionaries
+                tasks = []
+                for _, row in df.iterrows():
+                    # Create tasks for all permutations of languages in the group, excluding self-translation
+                    langs = [col for col in df.columns if col not in ["talk_name"]]
+                    for src_lang in langs:
+                        for tgt_lang in langs:
+                            if src_lang != tgt_lang:
+                                tasks.append(
+                                    {
+                                        "talk_name": row["talk_name"],
+                                        "source_text": row[src_lang],
+                                        "target_text": row[tgt_lang],
+                                        "source_lang": src_lang,
+                                        "target_lang": tgt_lang,
+                                    }
+                                )
+                all_tasks.extend(tasks)
+
+        if not all_tasks:
+            raise FileNotFoundError(
+                "No training data could be loaded. Please check the data files."
+            )
+
+        # The concept of 'task_type' needs to be created from the language columns
+        for task in all_tasks:
+            task["task_type"] = f"{task['source_lang']}_{task['target_lang']}"
 
         # Filter for base language pairs only
         base_task_types = set()
-        for src in self.config.base_langs:
-            for tgt in self.config.base_langs:
-                if src != tgt:
-                    base_task_types.add(f"{src}_{tgt}")
+        if self.config.base_langs:
+            for src in self.config.base_langs:
+                for tgt in self.config.base_langs:
+                    if src != tgt:
+                        base_task_types.add(f"{src}_{tgt}")
 
         filtered_tasks = [
-            task for task in train_tasks if task["task_type"] in base_task_types
+            task for task in all_tasks if task["task_type"] in base_task_types
         ]
 
-        logger.info(f"Loaded {len(filtered_tasks)} training examples")
+        logger.info(
+            f"Loaded {len(filtered_tasks)} training examples from groups: {', '.join(self.language_groups)}"
+        )
         logger.info(f"Task types: {base_task_types}")
 
         return filtered_tasks
@@ -217,6 +266,12 @@ def main():
     )
     parser.add_argument("--data_dir", default="datasets", help="Data directory")
     parser.add_argument("--output_dir", default="results", help="Output directory")
+    parser.add_argument(
+        "--language_groups",
+        nargs="+",
+        default=["az_tr_en", "be_uk_en"],
+        help="Language groups to use for training (e.g., az_tr_en be_uk_en)",
+    )
 
     args = parser.parse_args()
 
@@ -237,7 +292,9 @@ def main():
     )
 
     # Initialize trainer
-    trainer = ReptileTrainer(config, args.data_dir, token=token)
+    trainer = ReptileTrainer(
+        config, args.data_dir, token=token, language_groups=args.language_groups
+    )
 
     try:
         # Run training
