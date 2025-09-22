@@ -16,7 +16,6 @@ from dotenv import load_dotenv
 # Add project root to path
 sys.path.append(str(Path(__file__).parent))
 
-from gemma import GemmaTranslationModel
 from evaluation import TranslationEvaluator
 from cache import get_cached_gemma_model
 

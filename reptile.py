@@ -13,7 +13,6 @@ import os
 
 # Add project root to path for imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from gemma import GemmaTranslationModel
 from evaluation import TranslationEvaluator
 from cache import get_cached_gemma_model
 

@@ -5,9 +5,7 @@ Handles translation tasks using Gemma-3-1B-IT with proper prompting
 
 import torch
 import os
-from dotenv import load_dotenv
 from transformers import AutoTokenizer, AutoModelForCausalLM
-from huggingface_hub import login
 from typing import List, Dict, Optional
 import logging
 
