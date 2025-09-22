@@ -8,7 +8,7 @@ import logging
 import pickle
 import argparse
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
 import sys
 import os
 from dotenv import load_dotenv
@@ -32,26 +32,71 @@ class ReptileEvaluator:
         self,
         config: ReptileConfig,
         data_dir: str = "datasets",
-        token: str | None = None,
+        token: Optional[str] = None,
+        language_groups: Optional[List[str]] = None,
     ):
         self.config = config
         self.data_dir = Path(data_dir)
         self.meta_learner = ReptileMetaLearner(config, token=token)
+        self.language_groups = language_groups or []
 
     def load_test_data(self) -> List[Dict]:
-        """Load test data for evaluation"""
-        test_file = self.data_dir / "test_tasks.pkl"
+        """Load and prepare test data from specified language groups."""
+        all_tasks = []
 
-        if not test_file.exists():
-            logger.info("Test data not found. Processing raw data...")
-            self._process_raw_data()
+        if not self.language_groups:
+            raise ValueError("No language groups specified for evaluation.")
 
-        logger.info(f"Loading test data from {test_file}")
-        with open(test_file, "rb") as f:
-            test_tasks = pickle.load(f)
+        for group in self.language_groups:
+            test_file = self.data_dir / f"{group}_test.pkl"
 
-        logger.info(f"Loaded {len(test_tasks)} test examples")
-        return test_tasks
+            if not test_file.exists():
+                logger.info(
+                    f"Test data file not found: {test_file}. Processing raw data..."
+                )
+                self._process_raw_data()
+
+            if not test_file.exists():
+                logger.warning(
+                    f"Could not generate or find {test_file}. Skipping this group."
+                )
+                continue
+
+            logger.info(f"Loading test data from {test_file}")
+            with open(test_file, "rb") as f:
+                df = pickle.load(f)
+                # Convert DataFrame to list of dictionaries
+                tasks = []
+                for _, row in df.iterrows():
+                    # Create tasks for all permutations of languages in the group, excluding self-translation
+                    langs = [col for col in df.columns if col not in ["talk_name"]]
+                    for src_lang in langs:
+                        for tgt_lang in langs:
+                            if src_lang != tgt_lang:
+                                tasks.append(
+                                    {
+                                        "talk_name": row["talk_name"],
+                                        "source_text": row[src_lang],
+                                        "target_text": row[tgt_lang],
+                                        "source_lang": src_lang,
+                                        "target_lang": tgt_lang,
+                                    }
+                                )
+                all_tasks.extend(tasks)
+
+        if not all_tasks:
+            raise FileNotFoundError(
+                "No test data could be loaded. Please check the data files."
+            )
+
+        # The concept of 'task_type' needs to be created from the language columns
+        for task in all_tasks:
+            task["task_type"] = f"{task['source_lang']}_{task['target_lang']}"
+
+        logger.info(
+            f"Loaded {len(all_tasks)} test examples from groups: {', '.join(self.language_groups)}"
+        )
+        return all_tasks
 
     def _process_raw_data(self):
         """Process raw TED data if processed data doesn't exist"""
@@ -310,6 +355,12 @@ def main():
         default=5,
         help="Number of support examples for few-shot evaluation",
     )
+    parser.add_argument(
+        "--language_groups",
+        nargs="+",
+        default=["az_tr_en", "be_uk_en"],
+        help="Language groups to use for evaluation (e.g., az_tr_en be_uk_en)",
+    )
 
     args = parser.parse_args()
 
@@ -326,7 +377,9 @@ def main():
     )
 
     # Initialize evaluator
-    evaluator = ReptileEvaluator(config, args.data_dir, token=token)
+    evaluator = ReptileEvaluator(
+        config, args.data_dir, token=token, language_groups=args.language_groups
+    )
 
     try:
         if args.baseline_file:
