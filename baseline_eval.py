@@ -8,7 +8,7 @@ import logging
 import pickle
 import argparse
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
 import sys
 import os
 from dotenv import load_dotenv
@@ -27,13 +27,18 @@ class BaselineEvaluator:
     """Evaluate Gemma models on zero-shot translation tasks"""
 
     def __init__(
-        self, model_name: str, data_dir: str = "datasets", token: str | None = None
+        self,
+        model_name: str,
+        data_dir: str = "datasets",
+        token: Optional[str] = None,
+        language_groups: Optional[List[str]] = None,
     ):
         self.model_name = model_name
         self.data_dir = Path(data_dir)
         self.evaluator = TranslationEvaluator()
         self.model = None
         self.token = token
+        self.language_groups = language_groups or []
 
         # Target language pairs for evaluation
         self.base_pairs = [
@@ -57,28 +62,56 @@ class BaselineEvaluator:
         logger.info("Model loaded successfully")
 
     def load_test_data(self) -> Dict[str, List[Dict]]:
-        """Load test data for evaluation"""
-        test_data = {}
+        """Load and prepare test data from specified language groups."""
+        all_tasks = {}
 
-        # Try to load processed test tasks
-        test_file = self.data_dir / "test_tasks.pkl"
-        if test_file.exists():
+        if not self.language_groups:
+            raise ValueError("No language groups specified for evaluation.")
+
+        for group in self.language_groups:
+            test_file = self.data_dir / f"{group}_test.pkl"
+
+            if not test_file.exists():
+                logger.warning(f"Could not find {test_file}. Skipping this group.")
+                continue
+
+            logger.info(f"Loading test data from {test_file}")
             with open(test_file, "rb") as f:
-                test_tasks = pickle.load(f)
+                df = pickle.load(f)
+                # Convert DataFrame to list of dictionaries
+                tasks = []
+                for _, row in df.iterrows():
+                    # Create tasks for all permutations of languages in the group, excluding self-translation
+                    langs = [col for col in df.columns if col not in ["talk_name"]]
+                    for src_lang in langs:
+                        for tgt_lang in langs:
+                            if src_lang != tgt_lang:
+                                tasks.append(
+                                    {
+                                        "talk_name": row["talk_name"],
+                                        "source_text": row[src_lang],
+                                        "target_text": row[tgt_lang],
+                                        "source_lang": src_lang,
+                                        "target_lang": tgt_lang,
+                                    }
+                                )
 
-            # Group by task type
-            for task in test_tasks:
-                task_type = task["task_type"]
-                if task_type not in test_data:
-                    test_data[task_type] = []
-                test_data[task_type].append(task)
+                # Group tasks by task_type
+                for task in tasks:
+                    task_type = f"{task['source_lang']}_{task['target_lang']}"
+                    if task_type not in all_tasks:
+                        all_tasks[task_type] = []
+                    all_tasks[task_type].append(task)
 
-            logger.info(f"Loaded test data with {len(test_data)} task types")
-        else:
-            logger.warning(f"Test data file not found: {test_file}")
-            logger.info("Run data/ted_clean.py first to process the data")
+        if not all_tasks:
+            raise FileNotFoundError(
+                "No test data could be loaded. Please check the data files."
+            )
 
-        return test_data
+        logger.info(
+            f"Loaded test data with {len(all_tasks)} task types from groups: {', '.join(self.language_groups)}"
+        )
+        return all_tasks
 
     def evaluate_language_pair(
         self,
@@ -149,7 +182,7 @@ class BaselineEvaluator:
         return scores
 
     def run_baseline_evaluation(
-        self, output_file: str | None = None, max_examples: int = 50
+        self, output_file: Optional[str] = None, max_examples: int = 50
     ) -> Dict[str, Dict[str, float]]:
         """Run complete baseline evaluation"""
         if self.model is None:
@@ -291,6 +324,12 @@ def main():
         default=50,
         help="Maximum examples per language pair",
     )
+    parser.add_argument(
+        "--language_groups",
+        nargs="+",
+        default=["az_tr_en", "be_uk_en"],
+        help="Language groups to use for evaluation (e.g., az_tr_en be_uk_en)",
+    )
 
     args = parser.parse_args()
 
@@ -304,7 +343,9 @@ def main():
     model_name = model_mapping[args.model]
 
     # Run evaluation
-    evaluator = BaselineEvaluator(model_name, args.data_dir, token=token)
+    evaluator = BaselineEvaluator(
+        model_name, args.data_dir, token=token, language_groups=args.language_groups
+    )
     results = evaluator.run_baseline_evaluation(args.output, args.max_examples)
 
     if results:
