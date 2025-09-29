@@ -309,7 +309,7 @@ class BaselineEvaluator:
 def main():
     parser = argparse.ArgumentParser(description="Baseline evaluation of Gemma models")
     parser.add_argument(
-        "--model", choices=["270m", "1b"], default="270m", help="Model size to evaluate"
+        "--model", choices=["270m", "1b"], default="1b", help="Model size to evaluate"
     )
     parser.add_argument(
         "--output",
