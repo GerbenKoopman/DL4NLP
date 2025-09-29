@@ -158,7 +158,7 @@ class GemmaTranslationModel:
         tgt_lang_name = self.lang_codes[target_lang]
 
         if few_shot_examples:
-            # Few-shot prompt remains the same
+            # TODO: this looks like in-context learning instead?
             instruction = f"Translate the following text from {src_lang_name} to {tgt_lang_name}.\n\n"
             for example in few_shot_examples:
                 if (
@@ -168,7 +168,6 @@ class GemmaTranslationModel:
                     instruction += f"{example['source']} → {example['target']}\n"
             instruction += f"\nNow translate: {text}\nTranslation:"
         else:
-            # Updated zero-shot prompt for clarity and directness
             instruction = (
                 f"Translate the following text from {src_lang_name} to {tgt_lang_name}. "
                 f"Provide only the translated text, without any additional commentary or prefixes.\n\n"
