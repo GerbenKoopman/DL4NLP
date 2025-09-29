@@ -20,7 +20,6 @@ As our dataset we will use the [TED Talks multilingual corpus](http://aclweb.org
 
 We intend to use Reptile meta-learning, with LoRA if this proves necessary for the finetuning of a model like Gemma 3 1B or Gemma 3 270m.
 
-
 ## Example Start
 
 ```bash
@@ -53,28 +52,45 @@ You can filter what gets plotted:
 
 - Training history filters:
   - Only specific series (task types) and hide meta average:
+
     ```bash
     python analyze_results.py --train_tasks be_en,en_be --no_meta_average
     ```
+
   - Include meta average plus selected series:
+
     ```bash
     python analyze_results.py --train_tasks be_en,en_be,meta_average
     ```
 
 - Evaluation summary filters:
   - Focus on transfer to target languages only (recommended):
+
     ```bash
     python analyze_results.py --tasks az_tr,be_uk --eval_types transfer_1,transfer_5
     ```
+
   - Base language few-shot focus:
+
     ```bash
     python analyze_results.py --tasks az_en,en_az,be_en,en_be --eval_types zero_shot,few_shot_1,few_shot_5
     ```
+
   - Single task, all evaluation types:
+
     ```bash
     python analyze_results.py --tasks az_tr
     ```
+
   - Plot everything (default):
+
     ```bash
     python analyze_results.py
     ```
+
+### TODO
+
+- [ ] Implement wandb logging for training monitoring
+- [ ] Add QLoRA support for efficient fine-tuning ([docs](https://ai.google.dev/gemma/docs/core/huggingface_text_finetune_qlora))
+- [ ] Rewrite Reptile to update QLoRA weights and parameters correctly
+- [ ] Expand evaluations
