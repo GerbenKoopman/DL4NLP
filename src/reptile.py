@@ -193,7 +193,8 @@ class ReptileMetaLearner:
         base_task_types = [
             tt
             for tt in all_task_types
-            if any(lang in tt for lang in self.config.base_langs)
+            if self.config.base_langs
+            and any(lang in tt for lang in self.config.base_langs)
         ]
 
         logger.info(f"Training on task types: {base_task_types}")
@@ -231,7 +232,8 @@ class ReptileMetaLearner:
         target_task_types = [
             task["task_type"]
             for task in test_tasks
-            if any(lang in task["task_type"] for lang in self.config.target_langs)
+            if self.config.target_langs
+            and any(lang in task["task_type"] for lang in self.config.target_langs)
         ]
         unique_target_tasks = list(set(target_task_types))
 
