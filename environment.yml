@@ -29,4 +29,8 @@ dependencies:
     - transformers==4.56.1
     - sacrebleu
     - autoflake
-    
+    - evaluate>=0.4.3
+    - bitsandbytes>=0.45.3
+    - trl>=0.21.0
+    - peft>=0.14.0
+    - wandb==0.22.0
