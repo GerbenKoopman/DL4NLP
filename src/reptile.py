@@ -76,6 +76,7 @@ class ReptileMetaLearner:
         episodes = []
         # Create multiple episodes by shuffling the data
         for _ in range(3):  # Create 3 episodes per task type
+            task_examples = np.array(task_examples)
             np.random.shuffle(task_examples)
             support_set = task_examples[: self.config.support_size]
             query_set = task_examples[
