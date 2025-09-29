@@ -89,10 +89,6 @@ class GemmaTranslationModel:
                 trust_remote_code=True,
             )
 
-            # Move to device if not using device_map
-            if device_map is None:
-                self.model = self.model.to(self.device)
-
             # Set model to eval mode
             self.model.eval()
 
