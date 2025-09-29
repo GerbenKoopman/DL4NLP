@@ -7,59 +7,125 @@ import torch
 import logging
 import numpy as np
 from typing import List, Dict, Tuple, Optional
-from dataclasses import dataclass
-import sys
-import os
-
-# Add project root to path for imports
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from dataclasses import dataclass, field
 from evaluation import TranslationEvaluator
-from cache import get_cached_gemma_model
+from datasets import Dataset
+from peft import LoraConfig, get_peft_model
+from transformers import (
+    AutoModelForCausalLM,
+    AutoTokenizer,
+    BitsAndBytesConfig,
+    TrainingArguments,
+)
+from trl.trainer.sft_trainer import SFTTrainer
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class QLoRAConfig:
+    """Configuration for QLoRA fine-tuning"""
+
+    gemma_model: str = "google/gemma-3-1b-pt"
+    tokenizer_model: str = "google/gemma-3-1b-it"
+    output_dir: str = "results/qlora_finetuned"
+    max_length: int = 512
+    num_train_epochs: int = 3
+    per_device_train_batch_size: int = 1
+    gradient_accumulation_steps: int = 4
+    learning_rate: float = 2e-4
+    lora_alpha: int = 16
+    lora_dropout: float = 0.05
+    lora_r: int = 16
 
 
 @dataclass
 class ReptileConfig:
     """Configuration for Reptile meta-learning"""
 
-    inner_steps: int = 5  # Number of inner loop adaptation steps
-    meta_steps: int = 100  # Number of meta-learning episodes
-    support_size: int = 5  # Number of support examples per task
-    query_size: int = 3  # Number of query examples per task
+    inner_steps: int = 5
+    meta_steps: int = 100
+    support_size: int = 5
+    query_size: int = 3
     device: str = (
         "mps"
         if torch.backends.mps.is_available()
         else ("cuda" if torch.cuda.is_available() else "cpu")
     )
-    gemma_model: str = "google/gemma-3-1b-it"  # Gemma model name
-    max_length: int = 128  # Max generation length
+    gemma_model: str = "google/gemma-3-1b-it"
+    max_length: int = 128
+    meta_lr: float = 0.1  # Meta-learning rate
 
-    # Language configuration for project
-    base_langs: Optional[List[str]] = None  # Azerbaijani, Belarusian, English
-    target_langs: Optional[List[str]] = None  # Turkish, Ukrainian
-
-    def __post_init__(self):
-        if self.base_langs is None:
-            self.base_langs = ["az", "be", "en"]
-        if self.target_langs is None:
-            self.target_langs = ["tr", "uk"]
+    base_langs: List[str] = field(default_factory=lambda: ["az", "be", "en"])
+    target_langs: List[str] = field(default_factory=lambda: ["tr", "uk"])
+    qlora_config: QLoRAConfig = field(default_factory=QLoRAConfig)
 
 
 class ReptileMetaLearner:
-    """Reptile meta-learning implementation for Gemma translation"""
+    """Reptile meta-learning implementation for Gemma translation using QLoRA."""
 
     def __init__(self, config: ReptileConfig, token: Optional[str] = None):
         self.config = config
-        self.gemma_model = get_cached_gemma_model(
-            config.gemma_model, config.device, token=token
-        )
+        self.token = token
+        self.model, self.tokenizer = self._load_base_model_and_tokenizer()
         self.evaluator = TranslationEvaluator()
+        logger.info(f"Initialized Reptile meta-learner with QLoRA on {config.device}")
 
-        # Track adaptation context (in-context learning examples)
-        self.adaptation_context = {}
+    def _load_base_model_and_tokenizer(self):
+        """Load the base Gemma model and tokenizer with QLoRA configuration."""
+        if torch.cuda.get_device_capability()[0] >= 8:
+            torch_dtype = torch.bfloat16
+        else:
+            torch_dtype = torch.float16
 
-        logger.info(f"Initialized Reptile meta-learner with Gemma on {config.device}")
+        quantization_config = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_use_double_quant=True,
+            bnb_4bit_quant_type="nf4",
+            bnb_4bit_compute_dtype=torch_dtype,
+        )
+
+        model = AutoModelForCausalLM.from_pretrained(
+            self.config.qlora_config.gemma_model,
+            quantization_config=quantization_config,
+            device_map="auto",
+            attn_implementation="eager",
+            torch_dtype=torch_dtype,
+            token=self.token,
+        )
+
+        peft_config = LoraConfig(
+            r=self.config.qlora_config.lora_r,
+            lora_alpha=self.config.qlora_config.lora_alpha,
+            lora_dropout=self.config.qlora_config.lora_dropout,
+            bias="none",
+            task_type="CAUSAL_LM",
+            target_modules="all-linear",
+        )
+        model = get_peft_model(model, peft_config)
+
+        # Freeze the base model
+        for name, param in model.named_parameters():
+            if "lora" not in name:
+                param.requires_grad = False
+
+        tokenizer = AutoTokenizer.from_pretrained(
+            self.config.qlora_config.tokenizer_model, token=self.token
+        )
+        if tokenizer.pad_token is None:
+            tokenizer.pad_token = tokenizer.eos_token
+
+        return model, tokenizer
+
+    def _format_prompt(self, example):
+        """Formats a dataset example into a prompt for the model."""
+        instruction = (
+            f"Translate the following text from {example['source_lang']} to {example['target_lang']}. "
+            f"Provide only the translated text, without any additional commentary or prefixes.\n\n"
+            f'Text: "{example["source_text"]}"\n'
+            f"Translation: {example['target_text']}"
+        )
+        return {"text": instruction}
 
     def create_task_episodes(
         self, tasks: List[Dict], task_type: str
@@ -76,77 +142,123 @@ class ReptileMetaLearner:
         episodes = []
         # Create multiple episodes by shuffling the data
         for _ in range(3):  # Create 3 episodes per task type
-            task_examples = np.array(task_examples)
-            np.random.shuffle(task_examples)
-            support_set = task_examples[: self.config.support_size]
-            query_set = task_examples[
+            task_examples_np = np.array(task_examples)
+            np.random.shuffle(task_examples_np)
+            shuffled_examples = task_examples_np.tolist()
+            support_set = shuffled_examples[: self.config.support_size]
+            query_set = shuffled_examples[
                 self.config.support_size : self.config.support_size
                 + self.config.query_size
             ]
+            if len(query_set) < self.config.query_size:
+                continue
             episodes.append((support_set, query_set))
 
         return episodes
 
-    def adapt_in_context(self, support_examples: List[Dict]) -> List[Dict]:
+    def _inner_loop_step(
+        self, support_examples: List[Dict], query_examples: List[Dict]
+    ) -> Tuple[Dict[str, torch.Tensor], float]:
         """
-        Reptile adaptation through in-context learning
-        For Gemma, this means selecting the best few-shot examples
+        Performs the inner loop adaptation, evaluation, and returns weight differences.
         """
-        # Convert to format expected by Gemma
-        few_shot_examples = []
-        for ex in support_examples:
-            few_shot_examples.append(
-                {
-                    "source": ex["source_text"],
-                    "target": ex["target_text"],
-                    "source_lang": ex["source_lang"],
-                    "target_lang": ex["target_lang"],
-                }
-            )
+        temp_output_dir = "tmp/inner_loop_adapter"
+        support_dataset = Dataset.from_list(support_examples).map(self._format_prompt)
 
-        return few_shot_examples
+        training_args = TrainingArguments(
+            output_dir=temp_output_dir,
+            per_device_train_batch_size=self.config.qlora_config.per_device_train_batch_size,
+            gradient_accumulation_steps=self.config.qlora_config.gradient_accumulation_steps,
+            learning_rate=self.config.qlora_config.learning_rate,
+            num_train_epochs=self.config.inner_steps,
+            logging_steps=1,
+            fp16=getattr(self.model.config, "torch_dtype", None) == torch.float16,
+            bf16=getattr(self.model.config, "torch_dtype", None) == torch.bfloat16,
+            save_strategy="no",
+            report_to=[],
+        )
 
-    def evaluate_query_set(
-        self, query_examples: List[Dict], adaptation_context: List[Dict]
-    ) -> float:
-        """Evaluate performance on query set using adapted context"""
+        trainer = SFTTrainer(
+            model=self.model,
+            args=training_args,
+            train_dataset=support_dataset,
+        )
+
+        initial_adapter_state = {
+            k: v.clone() for k, v in self.model.named_parameters() if "lora" in k
+        }
+
+        if support_examples:
+            trainer.train()
+
+        # Evaluate on the query set
         total_score = 0.0
-        valid_queries = 0
-
-        for query in query_examples:
-            try:
-                # Generate translation using adapted context
-                translation = self.gemma_model.translate(
-                    query["source_text"],
-                    query["source_lang"],
-                    query["target_lang"],
-                    few_shot_examples=adaptation_context,
-                    max_length=self.config.max_length,
+        if query_examples:
+            for query in query_examples:
+                prompt = (
+                    self._format_prompt(query)["text"].split("Translation:")[0]
+                    + "Translation:"
                 )
+                inputs = self.tokenizer(prompt, return_tensors="pt").to(
+                    self.config.device
+                )
+                with torch.no_grad():
+                    outputs = self.model.generate(
+                        **inputs,
+                        max_new_tokens=self.config.max_length,
+                        pad_token_id=self.tokenizer.eos_token_id,
+                    )
+                full_output = self.tokenizer.decode(
+                    outputs[0], skip_special_tokens=True
+                )
+                translation = full_output[len(prompt) :].strip()
 
-                # Evaluate translation quality
                 scores = self.evaluator.evaluate_translation(
                     translation, query["target_text"], ["bleu", "chrf"]
                 )
+                total_score += scores["bleu"] * 0.6 + scores["chrf"] * 0.4
+            score = total_score / len(query_examples)
+        else:
+            score = 0.0
 
-                # Combine scores (weighted average)
-                combined_score = scores["bleu"] * 0.6 + scores["chrf"] * 0.4
-                total_score += combined_score
-                valid_queries += 1
+        adapted_adapter_state = {
+            k: v.clone() for k, v in self.model.named_parameters() if "lora" in k
+        }
 
-            except Exception as e:
-                logger.warning(f"Query evaluation failed: {e}")
-                continue
+        # Revert model to its initial state before this episode
+        with torch.no_grad():
+            for name, param in self.model.named_parameters():
+                if "lora" in name:
+                    param.data.copy_(initial_adapter_state[name])
 
-        return total_score / valid_queries if valid_queries > 0 else 0.0
+        # Calculate the difference in weights
+        weight_diff = {
+            name: adapted_adapter_state[name] - initial_adapter_state[name]
+            for name in initial_adapter_state
+        }
+
+        return weight_diff, score
+
+    def adapt_and_evaluate(
+        self, support_examples: List[Dict], query_examples: List[Dict]
+    ) -> float:
+        """
+        Adapt the model on the support set using QLoRA and evaluate on the query set.
+        This function performs the inner loop of Reptile.
+        """
+        # This method is now a wrapper around _inner_loop_step for evaluation purposes
+        _, score = self._inner_loop_step(support_examples, query_examples)
+        return score
 
     def reptile_step(
         self, tasks: List[Dict], task_types: List[str]
     ) -> Dict[str, float]:
         """Perform one Reptile meta-learning step"""
         task_performances = {}
+        accumulated_weight_diffs = {}
         total_performance = 0.0
         valid_tasks = 0
+        episodes = []
 
         # Sample tasks for this meta-step
         sampled_tasks = np.random.choice(
@@ -155,7 +267,6 @@ class ReptileMetaLearner:
 
         for task_type in sampled_tasks:
             episodes = self.create_task_episodes(tasks, task_type)
-
             if not episodes:
                 continue
 
@@ -163,12 +274,19 @@ class ReptileMetaLearner:
             valid_episodes = 0
 
             for support_set, query_set in episodes:
-                # Inner loop: adapt using support set
-                adaptation_context = self.adapt_in_context(support_set)
+                # Inner loop adaptation and get weight differences
+                weight_diff, episode_score = self._inner_loop_step(
+                    support_set, query_set
+                )
 
-                # Evaluate on query set
-                episode_score = self.evaluate_query_set(query_set, adaptation_context)
+                # Accumulate weight differences
+                if not accumulated_weight_diffs:
+                    accumulated_weight_diffs = weight_diff
+                else:
+                    for name in accumulated_weight_diffs:
+                        accumulated_weight_diffs[name] += weight_diff[name]
 
+                # Evaluate performance on the query set after adaptation
                 task_performance += episode_score
                 valid_episodes += 1
 
@@ -178,7 +296,18 @@ class ReptileMetaLearner:
                 total_performance += avg_task_performance
                 valid_tasks += 1
 
-        # For Gemma, we don't update parameters but track performance
+        # Apply the Reptile meta-update after processing the batch of tasks
+        if accumulated_weight_diffs and valid_tasks > 0:
+            with torch.no_grad():
+                for name, param in self.model.named_parameters():
+                    if "lora" in name and name in accumulated_weight_diffs:
+                        # Average the accumulated differences
+                        avg_diff = accumulated_weight_diffs[name] / (
+                            valid_tasks * len(episodes)
+                        )
+                        # Reptile update rule
+                        param.data += self.config.meta_lr * avg_diff
+
         avg_performance = total_performance / valid_tasks if valid_tasks > 0 else 0.0
         task_performances["meta_average"] = avg_performance
 
@@ -256,11 +385,8 @@ class ReptileMetaLearner:
                 num_shots : num_shots + 5
             ]  # Test on 5 examples
 
-            # Adapt using support examples
-            adaptation_context = self.adapt_in_context(support_examples)
-
-            # Evaluate on query examples
-            performance = self.evaluate_query_set(query_examples, adaptation_context)
+            # Adapt and evaluate
+            performance = self.adapt_and_evaluate(support_examples, query_examples)
             results[task_type] = performance
 
             logger.info(f"Transfer performance for {task_type}: {performance:.3f}")
@@ -270,24 +396,19 @@ class ReptileMetaLearner:
     def zero_shot_evaluate(self, test_tasks: List[Dict]) -> Dict[str, float]:
         """Evaluate zero-shot performance without adaptation"""
         results = {}
-
         task_types = list(set(task["task_type"] for task in test_tasks))
 
         for task_type in task_types:
             task_examples = [
                 task for task in test_tasks if task["task_type"] == task_type
             ]
-
-            if len(task_examples) < 3:
+            if not task_examples:
                 continue
 
-            # Use first 3 examples for zero-shot evaluation
-            query_examples = task_examples[:3]
-
-            # Evaluate without any adaptation context
-            performance = self.evaluate_query_set(query_examples, [])
+            # Evaluate on a few examples without a support set
+            query_examples = task_examples[:5]
+            performance = self.adapt_and_evaluate([], query_examples)
             results[task_type] = performance
-
             logger.info(f"Zero-shot performance for {task_type}: {performance:.3f}")
 
         return results
@@ -300,26 +421,31 @@ def main():
     meta_learner = ReptileMetaLearner(config)
 
     # Create dummy tasks for testing
-    dummy_tasks = [
-        {
-            "source_text": "Hello world",
-            "target_text": "Salam dünya",
-            "source_lang": "en",
-            "target_lang": "az",
-            "task_type": "en_az",
-        },
-        {
-            "source_text": "Good morning",
-            "target_text": "Dobry ranak",
-            "source_lang": "en",
-            "target_lang": "be",
-            "task_type": "en_be",
-        },
-    ] * 20  # Repeat to have enough examples
+    dummy_tasks = []
+    for i in range(20):
+        dummy_tasks.append(
+            {
+                "source_text": f"Hello world {i}",
+                "target_text": f"Salam dünya {i}",
+                "source_lang": "en",
+                "target_lang": "az",
+                "task_type": "en_az",
+            }
+        )
+        dummy_tasks.append(
+            {
+                "source_text": f"Good morning {i}",
+                "target_text": f"Dobry ranak {i}",
+                "source_lang": "en",
+                "target_lang": "be",
+                "task_type": "en_be",
+            }
+        )
 
     # Test meta-learning
     logger.info("Testing Reptile meta-learning...")
     history = meta_learner.train_meta_learning(dummy_tasks)
+    print("Training history:", history)
 
     # Test zero-shot evaluation
     zero_shot_results = meta_learner.zero_shot_evaluate(dummy_tasks)
