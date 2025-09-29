@@ -160,7 +160,7 @@ def summarize_comparison(json_path: Path, out_dir: Path) -> None:
         color="#e76f51",
         label="Zero-shot Improvement",
     )
-    plt.yticks(y, df["task_type"])
+    plt.yticks(y, df["task_type"].tolist())
     plt.xlabel("Improvement over Baseline")
     plt.ylabel("Task Type")
     plt.title("Baseline vs Reptile Improvements")
