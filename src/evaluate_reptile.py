@@ -130,7 +130,8 @@ class ReptileEvaluator:
         base_tasks = [
             task
             for task in test_tasks
-            if any(lang in task["task_type"] for lang in self.config.base_langs)
+            if self.config.base_langs
+            and any(lang in task["task_type"] for lang in self.config.base_langs)
         ]
 
         few_shot_1 = self.meta_learner.evaluate_transfer(base_tasks, num_shots=1)
@@ -144,7 +145,8 @@ class ReptileEvaluator:
         target_tasks = [
             task
             for task in test_tasks
-            if any(lang in task["task_type"] for lang in self.config.target_langs)
+            if self.config.target_langs
+            and any(lang in task["task_type"] for lang in self.config.target_langs)
         ]
 
         if target_tasks:
