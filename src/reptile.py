@@ -32,7 +32,7 @@ class ReptileConfig:
         if torch.backends.mps.is_available()
         else ("cuda" if torch.cuda.is_available() else "cpu")
     )
-    gemma_model: str = "google/gemma-3-270m-it"  # Gemma model name
+    gemma_model: str = "google/gemma-3-1b-it"  # Gemma model name
     max_length: int = 128  # Max generation length
 
     # Language configuration for project
