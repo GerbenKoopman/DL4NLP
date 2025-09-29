@@ -116,6 +116,11 @@ class BaselineEvaluator:
         max_examples: int = 50,
     ) -> Dict[str, float]:
         """Evaluate zero-shot performance on a language pair"""
+
+        if self.model is None:
+            logger.error("Model not loaded. Aborting evaluation.")
+            return {"bleu": 0.0, "chrf": 0.0, "count": 0}
+
         logger.info(f"Evaluating {source_lang} → {target_lang} (zero-shot)")
 
         if not test_examples:
