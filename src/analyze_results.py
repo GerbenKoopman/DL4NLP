@@ -82,8 +82,8 @@ def plot_training_history(
 def plot_evaluation_summary(
     csv_path: Path,
     out_dir: Path,
-    task_filter: Optional[None] = None,
-    eval_type_filter: Optional[None] = None,
+    task_filter: Optional[List[str]] = None,
+    eval_type_filter: Optional[List[str]] = None,
 ) -> None:
     df = pd.read_csv(csv_path)
     model = df["model"].iloc[0] if "model" in df.columns and not df.empty else "unknown"
