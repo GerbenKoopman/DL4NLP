@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 class QLoRAConfig:
     """Configuration for QLoRA fine-tuning"""
 
-    gemma_model: str = "google/gemma-3-1b-pt"
+    gemma_model: str = "google/gemma-3-1b-it"
     tokenizer_model: str = "google/gemma-3-1b-it"
     output_dir: str = "results/qlora_finetuned"
     max_length: int = 512
