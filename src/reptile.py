@@ -178,7 +178,7 @@ class ReptileMetaLearner:
 
     def _inner_loop_step(
         self, support_examples: List[Dict], query_examples: List[Dict]
-    ) -> Tuple[Dict[str, torch.Tensor], float]:
+    ) -> Tuple[Dict[str, torch.Tensor], Dict[str, float]]:
         """
         Performs the inner loop adaptation, evaluation, and returns weight differences.
         """
@@ -216,7 +216,8 @@ class ReptileMetaLearner:
             trainer.train()
 
         # Evaluate on the query set
-        total_score = 0.0
+        total_bleu = 0.0
+        total_chrf = 0.0
         if query_examples:
             for query in query_examples:
                 prompt = (
@@ -240,10 +241,19 @@ class ReptileMetaLearner:
                 scores = self.evaluator.evaluate_translation(
                     translation, query["target_text"], ["bleu", "chrf"]
                 )
-                total_score += scores["bleu"] * 0.6 + scores["chrf"] * 0.4
-            score = total_score / len(query_examples)
+                total_bleu += scores["bleu"]
+                total_chrf += scores["chrf"]
+
+            avg_bleu = total_bleu / len(query_examples)
+            avg_chrf = total_chrf / len(query_examples)
+            combined_score = avg_bleu * 0.6 + avg_chrf * 0.4
+            detailed_scores = {
+                "bleu": avg_bleu,
+                "chrf": avg_chrf,
+                "combined_score": combined_score,
+            }
         else:
-            score = 0.0
+            detailed_scores = {"bleu": 0.0, "chrf": 0.0, "combined_score": 0.0}
 
         adapted_adapter_state = {
             k: v.clone() for k, v in self.model.named_parameters() if "lora" in k
@@ -261,18 +271,18 @@ class ReptileMetaLearner:
             for name in initial_adapter_state
         }
 
-        return weight_diff, score
+        return weight_diff, detailed_scores
 
     def adapt_and_evaluate(
         self, support_examples: List[Dict], query_examples: List[Dict]
-    ) -> float:
+    ) -> Dict[str, float]:
         """
         Adapt the model on the support set using QLoRA and evaluate on the query set.
         This function performs the inner loop of Reptile.
         """
         # This method is now a wrapper around _inner_loop_step for evaluation purposes
-        _, score = self._inner_loop_step(support_examples, query_examples)
-        return score
+        _, scores = self._inner_loop_step(support_examples, query_examples)
+        return scores
 
     def reptile_step(
         self, tasks: List[Dict], task_types: List[str]
@@ -281,6 +291,8 @@ class ReptileMetaLearner:
         task_performances = {}
         accumulated_weight_diffs = {}
         total_performance = 0.0
+        total_bleu = 0.0
+        total_chrf = 0.0
         valid_tasks = 0
         episodes = []
 
@@ -295,11 +307,13 @@ class ReptileMetaLearner:
                 continue
 
             task_performance = 0.0
+            task_bleu = 0.0
+            task_chrf = 0.0
             valid_episodes = 0
 
             for support_set, query_set in episodes:
                 # Inner loop adaptation and get weight differences
-                weight_diff, episode_score = self._inner_loop_step(
+                weight_diff, episode_scores = self._inner_loop_step(
                     support_set, query_set
                 )
 
@@ -311,13 +325,21 @@ class ReptileMetaLearner:
                         accumulated_weight_diffs[name] += weight_diff[name]
 
                 # Evaluate performance on the query set after adaptation
-                task_performance += episode_score
+                task_performance += episode_scores["combined_score"]
+                task_bleu += episode_scores["bleu"]
+                task_chrf += episode_scores["chrf"]
                 valid_episodes += 1
 
             if valid_episodes > 0:
                 avg_task_performance = task_performance / valid_episodes
-                task_performances[task_type] = avg_task_performance
+                avg_task_bleu = task_bleu / valid_episodes
+                avg_task_chrf = task_chrf / valid_episodes
+                task_performances[f"{task_type}_performance"] = avg_task_performance
+                task_performances[f"{task_type}_bleu"] = avg_task_bleu
+                task_performances[f"{task_type}_chrf"] = avg_task_chrf
                 total_performance += avg_task_performance
+                total_bleu += avg_task_bleu
+                total_chrf += avg_task_chrf
                 valid_tasks += 1
 
         # Apply the Reptile meta-update after processing the batch of tasks
@@ -332,8 +354,16 @@ class ReptileMetaLearner:
                         # Reptile update rule
                         param.data += self.config.meta_lr * avg_diff
 
-        avg_performance = total_performance / valid_tasks if valid_tasks > 0 else 0.0
-        task_performances["meta_average"] = avg_performance
+        if valid_tasks > 0:
+            task_performances["meta_average_performance"] = (
+                total_performance / valid_tasks
+            )
+            task_performances["meta_average_bleu"] = total_bleu / valid_tasks
+            task_performances["meta_average_chrf"] = total_chrf / valid_tasks
+        else:
+            task_performances["meta_average_performance"] = 0.0
+            task_performances["meta_average_bleu"] = 0.0
+            task_performances["meta_average_chrf"] = 0.0
 
         return task_performances
 
@@ -366,42 +396,122 @@ class ReptileMetaLearner:
 
         logger.info(f"Training on task types: {base_task_types}")
 
-        training_history = {task_type: [] for task_type in base_task_types}
-        training_history["meta_average"] = []
-        training_history["test_performance"] = []
+        # Initialize training history to store all metrics
+        training_history = {}
+        train_keys = [
+            "meta_average_performance",
+            "meta_average_bleu",
+            "meta_average_chrf",
+        ]
+        for task_type in base_task_types:
+            train_keys.extend(
+                [
+                    f"{task_type}_performance",
+                    f"{task_type}_bleu",
+                    f"{task_type}_chrf",
+                ]
+            )
+        for key in train_keys:
+            training_history[key] = []
 
+        test_keys = [
+            "test_avg_performance",
+            "test_avg_bleu",
+            "test_avg_chrf",
+        ]
+        # Assuming test tasks can be from any language pair
+        all_possible_test_tasks = ["tr_en", "en_tr", "uk_en", "en_uk"]
+        for task_type in all_possible_test_tasks:
+            test_keys.extend(
+                [
+                    f"test_{task_type}_performance",
+                    f"test_{task_type}_bleu",
+                    f"test_{task_type}_chrf",
+                ]
+            )
+        for key in test_keys:
+            training_history[key] = []
+
+        global_step = 0
         for meta_step in range(self.config.meta_steps):
             # Perform one Reptile step
             step_performances = self.reptile_step(train_tasks, base_task_types)
 
-            # Record performance
-            for task_type, performance in step_performances.items():
-                if task_type in training_history:
-                    training_history[task_type].append(performance)
+            # Record and log training performance
+            train_metrics_to_log = {}
+            for key, performance in step_performances.items():
+                if key in training_history:
+                    training_history[key].append(performance)
+                train_metrics_to_log[f"train_{key}"] = performance
+
+            if self.wandb_api_key:
+                wandb.log(train_metrics_to_log, step=global_step)
 
             # Evaluate on test set for learning curve
             if meta_step % 10 == 0:
                 test_performance = self.evaluate_on_test_set(test_tasks)
-                avg_test_perf = float(np.mean(list(test_performance.values())))
-                training_history["test_performance"].append(avg_test_perf)
-                step_performances["test_performance"] = avg_test_perf
-                logger.info(f"Test Performance: {avg_test_perf:.3f}")
+                test_metrics_to_log = {}
+
+                if test_performance:
+                    avg_test_bleu = float(
+                        np.mean([v["bleu"] for v in test_performance.values()])
+                    )
+                    avg_test_chrf = float(
+                        np.mean([v["chrf"] for v in test_performance.values()])
+                    )
+                    avg_test_perf = float(
+                        np.mean(
+                            [v["combined_score"] for v in test_performance.values()]
+                        )
+                    )
+
+                    # Record average test scores
+                    training_history["test_avg_performance"].append(avg_test_perf)
+                    training_history["test_avg_bleu"].append(avg_test_bleu)
+                    training_history["test_avg_chrf"].append(avg_test_chrf)
+
+                    # Log average test scores
+                    test_metrics_to_log["test_avg_performance"] = avg_test_perf
+                    test_metrics_to_log["test_avg_bleu"] = avg_test_bleu
+                    test_metrics_to_log["test_avg_chrf"] = avg_test_chrf
+
+                    # Record and log individual test task scores
+                    for task, scores in test_performance.items():
+                        for metric, value in scores.items():
+                            history_key = (
+                                f"test_{task}_{metric.replace('combined_', '')}"
+                            )
+                            if history_key in training_history:
+                                training_history[history_key].append(value)
+                            log_key = f"test_{task}_{metric.replace('combined_', '')}"
+                            test_metrics_to_log[log_key] = value
+
+                    logger.info(f"Test Performance: {avg_test_perf:.3f}")
+
+                else:
+                    logger.info("Test Performance: No test tasks evaluated.")
+
+                if self.wandb_api_key and test_metrics_to_log:
+                    wandb.log(test_metrics_to_log, step=global_step)
 
             # Log progress
-            if self.wandb_api_key:
-                wandb.log(step_performances, step=meta_step)
             if meta_step % 10 == 0:
-                avg_perf = step_performances.get("meta_average", 0.0)
+                avg_perf = step_performances.get("meta_average_performance", 0.0)
                 logger.info(
                     f"Meta-step {meta_step}/{self.config.meta_steps}, "
                     f"Avg Performance: {avg_perf:.3f}"
                 )
+
+            global_step += 1
+
         if self.wandb_api_key:
             wandb.finish()
         logger.info("Completed Reptile meta-learning training")
         return training_history
 
-    def evaluate_on_test_set(self, test_tasks: List[Dict]) -> Dict[str, float]:
+    def evaluate_on_test_set(
+        self, test_tasks: List[Dict]
+    ) -> Dict[str, Dict[str, float]]:
         """Evaluate performance on a held-out test set based on adapter mode."""
         logger.info("Evaluating on test set...")
         test_performance = {}
@@ -425,15 +535,23 @@ class ReptileMetaLearner:
             if not episodes:
                 continue
 
-            task_scores = []
+            task_scores_list = []
             for support_set, query_set in episodes:
-                _, score = self._inner_loop_step(support_set, query_set)
-                task_scores.append(score)
+                scores = self._inner_loop_step(support_set, query_set)[1]
+                task_scores_list.append(scores)
 
-            if task_scores:
-                avg_score = np.mean(task_scores)
-                test_performance[task_type] = avg_score
-                logger.debug(f"Test score for {task_type}: {avg_score:.3f}")
+            if task_scores_list:
+                avg_bleu = np.mean([s["bleu"] for s in task_scores_list])
+                avg_chrf = np.mean([s["chrf"] for s in task_scores_list])
+                avg_combined = np.mean([s["combined_score"] for s in task_scores_list])
+                test_performance[task_type] = {
+                    "bleu": avg_bleu,
+                    "chrf": avg_chrf,
+                    "combined_score": avg_combined,
+                }
+                logger.debug(
+                    f"Test score for {task_type}: {avg_combined:.3f} (BLEU: {avg_bleu:.3f}, CHRF: {avg_chrf:.3f})"
+                )
 
         return test_performance
 
@@ -473,9 +591,11 @@ class ReptileMetaLearner:
 
             # Adapt and evaluate
             performance = self.adapt_and_evaluate(support_examples, query_examples)
-            results[task_type] = performance
+            results[task_type] = performance["combined_score"]
 
-            logger.info(f"Transfer performance for {task_type}: {performance:.3f}")
+            logger.info(
+                f"Transfer performance for {task_type}: {performance['combined_score']:.3f}"
+            )
 
         return results
 
@@ -494,8 +614,10 @@ class ReptileMetaLearner:
             # Evaluate on a few examples without a support set
             query_examples = task_examples[:5]
             performance = self.adapt_and_evaluate([], query_examples)
-            results[task_type] = performance
-            logger.info(f"Zero-shot performance for {task_type}: {performance:.3f}")
+            results[task_type] = performance["combined_score"]
+            logger.info(
+                f"Zero-shot performance for {task_type}: {performance['combined_score']:.3f}"
+            )
 
         return results
 
