@@ -31,10 +31,11 @@ class ReptileEvaluator:
         token: Optional[str] = None,
         language_groups: Optional[List[str]] = None,
         wandb_api_key: Optional[str] = None,
+        wandb_entity: Optional[str] = None,
     ):
         self.config = config
         self.meta_learner = ReptileMetaLearner(
-            config, token=token, wandb_api_key=wandb_api_key
+            config, token=token, wandb_api_key=wandb_api_key, wandb_entity=wandb_entity
         )
         self.language_groups = language_groups or []
 

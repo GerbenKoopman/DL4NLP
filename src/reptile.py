@@ -71,6 +71,7 @@ class ReptileMetaLearner:
         token: Optional[str] = None,
         wandb_api_key: Optional[str] = None,
         wandb_project: str = "reptile-meta-learning",
+        wandb_entity: Optional[str] = None,
     ):
         self.config = config
         self.token = token
@@ -78,6 +79,7 @@ class ReptileMetaLearner:
         self.evaluator = TranslationEvaluator()
         self.wandb_api_key = wandb_api_key
         self.wandb_project = wandb_project
+        self.wandb_entity = wandb_entity
         if self.wandb_api_key:
             wandb.login(key=self.wandb_api_key)
         logger.info(f"Initialized Reptile meta-learner with QLoRA on {config.device}")
@@ -332,7 +334,11 @@ class ReptileMetaLearner:
     def train_meta_learning(self, tasks: List[Dict]) -> Dict[str, List[float]]:
         """Train using Reptile meta-learning algorithm"""
         if self.wandb_api_key:
-            wandb.init(project=self.wandb_project, config=asdict(self.config))
+            wandb.init(
+                project=self.wandb_project,
+                entity=self.wandb_entity,
+                config=asdict(self.config),
+            )
         logger.info(f"Starting Reptile meta-learning with {len(tasks)} tasks")
 
         # Get unique task types from base languages only
