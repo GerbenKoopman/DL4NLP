@@ -11,3 +11,6 @@ datasets/
 .env
 .cursor/
 __pycache__/
+
+# WandB files
+wandb/
