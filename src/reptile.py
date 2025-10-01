@@ -180,6 +180,7 @@ class ReptileMetaLearner:
 
         trainer = SFTTrainer(
             model=self.model,
+            processing_class=self.tokenizer,
             args=training_args,
             train_dataset=support_dataset,
         )
