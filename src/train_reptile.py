@@ -31,9 +31,12 @@ class ReptileTrainer:
         config: ReptileConfig,
         token: Optional[str] = None,
         language_groups: Optional[List[str]] = None,
+        wandb_api_key: Optional[str] = None,
     ):
         self.config = config
-        self.meta_learner = ReptileMetaLearner(config, token=token)
+        self.meta_learner = ReptileMetaLearner(
+            config, token=token, wandb_api_key=wandb_api_key
+        )
         self.language_groups = language_groups or []
 
     def load_training_data(self) -> List[Dict]:
@@ -277,6 +280,7 @@ def main():
     # Load .env file
     load_dotenv()
     token = os.getenv("HUGGINGFACE_HUB_TOKEN")
+    wandb_api_key = os.getenv("WANDB_API_KEY")
 
     # Map model choices to actual model names
     model_mapping = {"270m": "google/gemma-3-270m-it", "1b": "google/gemma-3-1b-it"}
@@ -291,7 +295,12 @@ def main():
     )
 
     # Initialize trainer
-    trainer = ReptileTrainer(config, token=token, language_groups=args.language_groups)
+    trainer = ReptileTrainer(
+        config,
+        token=token,
+        language_groups=args.language_groups,
+        wandb_api_key=wandb_api_key,
+    )
 
     try:
         # Run training

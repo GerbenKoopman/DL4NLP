@@ -6,8 +6,9 @@ Implements the Reptile algorithm for few-shot adaptation in translation tasks
 import torch
 import logging
 import numpy as np
+import wandb
 from typing import List, Dict, Tuple, Optional
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, asdict
 from evaluation import TranslationEvaluator
 from datasets import Dataset
 from peft import LoraConfig, get_peft_model
@@ -64,11 +65,21 @@ class ReptileConfig:
 class ReptileMetaLearner:
     """Reptile meta-learning implementation for Gemma translation using QLoRA."""
 
-    def __init__(self, config: ReptileConfig, token: Optional[str] = None):
+    def __init__(
+        self,
+        config: ReptileConfig,
+        token: Optional[str] = None,
+        wandb_api_key: Optional[str] = None,
+        wandb_project: str = "reptile-meta-learning",
+    ):
         self.config = config
         self.token = token
         self.model, self.tokenizer = self._load_base_model_and_tokenizer()
         self.evaluator = TranslationEvaluator()
+        self.wandb_api_key = wandb_api_key
+        self.wandb_project = wandb_project
+        if self.wandb_api_key:
+            wandb.login(key=self.wandb_api_key)
         logger.info(f"Initialized Reptile meta-learner with QLoRA on {config.device}")
 
     def _load_base_model_and_tokenizer(self):
@@ -176,7 +187,7 @@ class ReptileMetaLearner:
             fp16=getattr(self.model.config, "dtype", None) == torch.float16,
             bf16=getattr(self.model.config, "dtype", None) == torch.bfloat16,
             save_strategy="no",
-            report_to=[],
+            report_to="wandb" if self.wandb_api_key else [],
         )
 
         trainer = SFTTrainer(
@@ -318,6 +329,8 @@ class ReptileMetaLearner:
 
     def train_meta_learning(self, tasks: List[Dict]) -> Dict[str, List[float]]:
         """Train using Reptile meta-learning algorithm"""
+        if self.wandb_api_key:
+            wandb.init(project=self.wandb_project, config=asdict(self.config))
         logger.info(f"Starting Reptile meta-learning with {len(tasks)} tasks")
 
         # Get unique task types from base languages only
@@ -344,13 +357,16 @@ class ReptileMetaLearner:
                     training_history[task_type].append(performance)
 
             # Log progress
+            if self.wandb_api_key:
+                wandb.log(step_performances, step=meta_step)
             if meta_step % 10 == 0:
                 avg_perf = step_performances.get("meta_average", 0.0)
                 logger.info(
                     f"Meta-step {meta_step}/{self.config.meta_steps}, "
                     f"Avg Performance: {avg_perf:.3f}"
                 )
-
+        if self.wandb_api_key:
+            wandb.finish()
         logger.info("Completed Reptile meta-learning training")
         return training_history
 
