@@ -184,8 +184,10 @@ class ReptileMetaLearner:
             learning_rate=self.config.qlora_config.learning_rate,
             num_train_epochs=self.config.inner_steps,
             logging_steps=1,
-            fp16=getattr(self.model.config, "dtype", None) == torch.float16,
-            bf16=getattr(self.model.config, "dtype", None) == torch.bfloat16,
+            fp16=torch.cuda.is_available()
+            and getattr(self.model.config, "dtype", None) == torch.float16,
+            bf16=torch.cuda.is_available()
+            and getattr(self.model.config, "dtype", None) == torch.bfloat16,
             save_strategy="no",
             report_to="wandb" if self.wandb_api_key else [],
         )
