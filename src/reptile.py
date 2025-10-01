@@ -103,6 +103,7 @@ class ReptileMetaLearner:
             target_modules="all-linear",
         )
         model = get_peft_model(model, peft_config)
+        self.peft_config = peft_config
 
         # Freeze the base model
         for name, param in model.named_parameters():
@@ -183,6 +184,7 @@ class ReptileMetaLearner:
             processing_class=self.tokenizer,
             args=training_args,
             train_dataset=support_dataset,
+            peft_config=self.peft_config,
         )
 
         initial_adapter_state = {
