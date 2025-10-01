@@ -74,15 +74,15 @@ class ReptileMetaLearner:
     def _load_base_model_and_tokenizer(self):
         """Load the base Gemma model and tokenizer with QLoRA configuration."""
         if torch.cuda.get_device_capability()[0] >= 8:
-            torch_dtype = torch.bfloat16
+            dtype = torch.bfloat16
         else:
-            torch_dtype = torch.float16
+            dtype = torch.float16
 
         quantization_config = BitsAndBytesConfig(
             load_in_4bit=True,
             bnb_4bit_use_double_quant=True,
             bnb_4bit_quant_type="nf4",
-            bnb_4bit_compute_dtype=torch_dtype,
+            bnb_4bit_compute_dtype=dtype,
         )
 
         model = AutoModelForCausalLM.from_pretrained(
@@ -90,7 +90,7 @@ class ReptileMetaLearner:
             quantization_config=quantization_config,
             device_map="auto",
             attn_implementation="eager",
-            torch_dtype=torch_dtype,
+            dtype=dtype,
             token=self.token,
         )
 
@@ -172,8 +172,8 @@ class ReptileMetaLearner:
             learning_rate=self.config.qlora_config.learning_rate,
             num_train_epochs=self.config.inner_steps,
             logging_steps=1,
-            fp16=getattr(self.model.config, "torch_dtype", None) == torch.float16,
-            bf16=getattr(self.model.config, "torch_dtype", None) == torch.bfloat16,
+            fp16=getattr(self.model.config, "dtype", None) == torch.float16,
+            bf16=getattr(self.model.config, "dtype", None) == torch.bfloat16,
             save_strategy="no",
             report_to=[],
         )
