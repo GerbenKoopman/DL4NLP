@@ -90,7 +90,7 @@ You can filter what gets plotted:
 
 ### TODO
 
-- [ ] Implement wandb logging for training monitoring
-- [ ] Add QLoRA support for efficient fine-tuning ([docs](https://ai.google.dev/gemma/docs/core/huggingface_text_finetune_qlora))
-- [ ] Rewrite Reptile to update QLoRA weights and parameters correctly
+- [x] Implement wandb logging for training monitoring
+- [x] Add QLoRA support for efficient fine-tuning ([docs](https://ai.google.dev/gemma/docs/core/huggingface_text_finetune_qlora))
+- [x] Rewrite Reptile to update QLoRA weights and parameters correctly
 - [ ] Expand evaluations
