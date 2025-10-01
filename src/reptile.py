@@ -56,6 +56,7 @@ class ReptileConfig:
     gemma_model: str = "google/gemma-3-1b-it"
     max_length: int = 128
     meta_lr: float = 0.1  # Meta-learning rate
+    adapter_mode: str = "all"  # "all", "az_en", "be_en"
 
     base_langs: List[str] = field(default_factory=lambda: ["az", "be", "en"])
     target_langs: List[str] = field(default_factory=lambda: ["tr", "uk"])
@@ -83,6 +84,11 @@ class ReptileMetaLearner:
         if self.wandb_api_key:
             wandb.login(key=self.wandb_api_key)
         logger.info(f"Initialized Reptile meta-learner with QLoRA on {config.device}")
+
+    def save_adapter(self, output_dir: str):
+        """Save the trained LoRA adapter."""
+        self.model.save_pretrained(output_dir)
+        logger.info(f"Adapter saved to {output_dir}")
 
     def _load_base_model_and_tokenizer(self):
         """Load the base Gemma model and tokenizer with QLoRA configuration."""
@@ -331,7 +337,9 @@ class ReptileMetaLearner:
 
         return task_performances
 
-    def train_meta_learning(self, tasks: List[Dict]) -> Dict[str, List[float]]:
+    def train_meta_learning(
+        self, train_tasks: List[Dict], test_tasks: List[Dict]
+    ) -> Dict[str, List[float]]:
         """Train using Reptile meta-learning algorithm"""
         if self.wandb_api_key:
             wandb.init(
@@ -339,30 +347,45 @@ class ReptileMetaLearner:
                 entity=self.wandb_entity,
                 config=asdict(self.config),
             )
-        logger.info(f"Starting Reptile meta-learning with {len(tasks)} tasks")
+        logger.info(f"Starting Reptile meta-learning with {len(train_tasks)} tasks")
 
         # Get unique task types from base languages only
-        all_task_types = list(set(task["task_type"] for task in tasks))
-        base_task_types = [
-            tt
-            for tt in all_task_types
-            if self.config.base_langs
-            and any(lang in tt for lang in self.config.base_langs)
-        ]
+        all_task_types = list(set(task["task_type"] for task in train_tasks))
+
+        if self.config.adapter_mode == "az_en":
+            base_task_types = [t for t in all_task_types if "az" in t or "en" in t]
+        elif self.config.adapter_mode == "be_en":
+            base_task_types = [t for t in all_task_types if "be" in t or "en" in t]
+        else:  # all
+            base_task_types = [
+                tt
+                for tt in all_task_types
+                if self.config.base_langs
+                and any(lang in tt for lang in self.config.base_langs)
+            ]
 
         logger.info(f"Training on task types: {base_task_types}")
 
         training_history = {task_type: [] for task_type in base_task_types}
         training_history["meta_average"] = []
+        training_history["test_performance"] = []
 
         for meta_step in range(self.config.meta_steps):
             # Perform one Reptile step
-            step_performances = self.reptile_step(tasks, base_task_types)
+            step_performances = self.reptile_step(train_tasks, base_task_types)
 
             # Record performance
             for task_type, performance in step_performances.items():
                 if task_type in training_history:
                     training_history[task_type].append(performance)
+
+            # Evaluate on test set for learning curve
+            if meta_step % 10 == 0:
+                test_performance = self.evaluate_on_test_set(test_tasks)
+                avg_test_perf = float(np.mean(list(test_performance.values())))
+                training_history["test_performance"].append(avg_test_perf)
+                step_performances["test_performance"] = avg_test_perf
+                logger.info(f"Test Performance: {avg_test_perf:.3f}")
 
             # Log progress
             if self.wandb_api_key:
@@ -377,6 +400,42 @@ class ReptileMetaLearner:
             wandb.finish()
         logger.info("Completed Reptile meta-learning training")
         return training_history
+
+    def evaluate_on_test_set(self, test_tasks: List[Dict]) -> Dict[str, float]:
+        """Evaluate performance on a held-out test set based on adapter mode."""
+        logger.info("Evaluating on test set...")
+        test_performance = {}
+
+        target_test_tasks = []
+        if self.config.adapter_mode == "az_en":
+            target_test_tasks = ["tr_en", "en_tr"]
+        elif self.config.adapter_mode == "be_en":
+            target_test_tasks = ["uk_en", "en_uk"]
+        elif self.config.adapter_mode == "all":
+            target_test_tasks = ["tr_en", "en_tr", "uk_en", "en_uk"]
+
+        filtered_test_tasks = [
+            task for task in test_tasks if task["task_type"] in target_test_tasks
+        ]
+        test_task_types = list(set(task["task_type"] for task in filtered_test_tasks))
+        logger.info(f"Evaluating on test task types: {test_task_types}")
+
+        for task_type in test_task_types:
+            episodes = self.create_task_episodes(filtered_test_tasks, task_type)
+            if not episodes:
+                continue
+
+            task_scores = []
+            for support_set, query_set in episodes:
+                _, score = self._inner_loop_step(support_set, query_set)
+                task_scores.append(score)
+
+            if task_scores:
+                avg_score = np.mean(task_scores)
+                test_performance[task_type] = avg_score
+                logger.debug(f"Test score for {task_type}: {avg_score:.3f}")
+
+        return test_performance
 
     def evaluate_transfer(
         self, test_tasks: List[Dict], num_shots: int = 5
@@ -471,7 +530,7 @@ def main():
 
     # Test meta-learning
     logger.info("Testing Reptile meta-learning...")
-    history = meta_learner.train_meta_learning(dummy_tasks)
+    history = meta_learner.train_meta_learning(dummy_tasks, dummy_tasks)
     print("Training history:", history)
 
     # Test zero-shot evaluation

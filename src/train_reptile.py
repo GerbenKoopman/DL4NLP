@@ -45,35 +45,27 @@ class ReptileTrainer:
         )
         self.language_groups = language_groups or []
 
-    def load_training_data(self) -> List[Dict]:
-        """Load and prepare training data from specified language groups."""
+    def load_data(self, split: str) -> List[Dict]:
+        """Load and prepare data from specified language groups for a given split."""
         all_tasks = []
 
         if not self.language_groups:
-            raise ValueError("No language groups specified for training.")
+            raise ValueError("No language groups specified for data loading.")
 
         for group in self.language_groups:
-            train_file = paths.data_dir / f"{group}_train.pkl"
+            data_file = paths.data_dir / f"{group}_{split}.pkl"
 
-            if not train_file.exists():
-                logger.info(
-                    f"Training data file not found: {train_file}. Processing raw data..."
-                )
-                self._process_raw_data()
-
-            if not train_file.exists():
+            if not data_file.exists():
                 logger.warning(
-                    f"Could not generate or find {train_file}. Skipping this group."
+                    f"Data file not found: {data_file}. Skipping this group."
                 )
                 continue
 
-            logger.info(f"Loading training data from {train_file}")
-            with open(train_file, "rb") as f:
+            logger.info(f"Loading {split} data from {data_file}")
+            with open(data_file, "rb") as f:
                 df = pickle.load(f)
-                # Convert DataFrame to list of dictionaries
                 tasks = []
                 for _, row in df.iterrows():
-                    # Create tasks for all permutations of languages in the group, excluding self-translation
                     langs = [col for col in df.columns if col not in ["talk_name"]]
                     for src_lang in langs:
                         for tgt_lang in langs:
@@ -91,14 +83,12 @@ class ReptileTrainer:
 
         if not all_tasks:
             raise FileNotFoundError(
-                "No training data could be loaded. Please check the data files."
+                f"No {split} data could be loaded. Please check the data files."
             )
 
-        # The concept of 'task_type' needs to be created from the language columns
         for task in all_tasks:
             task["task_type"] = f"{task['source_lang']}_{task['target_lang']}"
 
-        # Filter for base language pairs only
         base_task_types = set()
         if self.config.base_langs:
             for src in self.config.base_langs:
@@ -111,11 +101,13 @@ class ReptileTrainer:
         ]
 
         logger.info(
-            f"Loaded {len(filtered_tasks)} training examples from groups: {', '.join(self.language_groups)}"
+            f"Loaded {len(filtered_tasks)} {split} examples from groups: {', '.join(self.language_groups)}"
         )
-        logger.info(f"Task types: {base_task_types}")
-
         return filtered_tasks
+
+    def load_training_data(self) -> List[Dict]:
+        """Load and prepare training data from specified language groups."""
+        return self.load_data("train")
 
     def _process_raw_data(self):
         """Process raw TED data if processed data doesn't exist"""
@@ -128,14 +120,26 @@ class ReptileTrainer:
         """Run Reptile meta-learning training"""
         logger.info("Starting Reptile meta-learning training")
 
-        # Load training data
-        train_tasks = self.load_training_data()
+        # Load training and test data
+        train_tasks = self.load_data("train")
+        test_tasks = self.load_data("test")
 
         if not train_tasks:
             raise ValueError("No training data available")
 
         # Run meta-learning
-        training_history = self.meta_learner.train_meta_learning(train_tasks)
+        training_history = self.meta_learner.train_meta_learning(
+            train_tasks, test_tasks
+        )
+
+        # Save the adapter
+        adapter_output_dir = (
+            Path(output_dir)
+            / "adapters"
+            / f"{self.config.gemma_model.split('/')[-1]}_{self.config.adapter_mode}"
+        )
+        adapter_output_dir.mkdir(parents=True, exist_ok=True)
+        self.meta_learner.save_adapter(str(adapter_output_dir))
 
         # Prepare results
         results = {
@@ -147,6 +151,7 @@ class ReptileTrainer:
                 "model": self.config.gemma_model,
                 "base_langs": self.config.base_langs,
                 "target_langs": self.config.target_langs,
+                "adapter_mode": self.config.adapter_mode,
             },
             "training_history": training_history,
             "final_performance": {},
@@ -176,7 +181,7 @@ class ReptileTrainer:
         # Save detailed results
         results_file = (
             output_path
-            / f"reptile_training_{self.config.gemma_model.split('/')[-1]}.json"
+            / f"reptile_training_{self.config.gemma_model.split('/')[-1]}_{self.config.adapter_mode}.json"
         )
         with open(results_file, "w", encoding="utf-8") as f:
             json.dump(results, f, indent=2, ensure_ascii=False)
@@ -212,7 +217,7 @@ class ReptileTrainer:
 
         csv_file = (
             output_path
-            / f"training_history_{self.config.gemma_model.split('/')[-1]}.csv"
+            / f"training_history_{self.config.gemma_model.split('/')[-1]}_{self.config.adapter_mode}.csv"
         )
         df.to_csv(csv_file)
 
@@ -230,6 +235,7 @@ class ReptileTrainer:
         print(f"Inner steps: {config['inner_steps']}")
         print(f"Support size: {config['support_size']}")
         print(f"Base languages: {', '.join(config['base_langs'])}")
+        print(f"Adapter Mode: {config['adapter_mode']}")
 
         print(f"\nFinal Performance:")
         for task_type, metrics in results["final_performance"].items():
@@ -253,6 +259,12 @@ def main():
     )
     parser.add_argument(
         "--model", choices=["270m", "1b"], default="270m", help="Model size to train"
+    )
+    parser.add_argument(
+        "--adapter_mode",
+        choices=["all", "az_en", "be_en"],
+        default="all",
+        help="Which language pairs to train the adapter on.",
     )
     parser.add_argument(
         "--meta_steps", type=int, default=100, help="Number of meta-learning steps"
@@ -300,6 +312,7 @@ def main():
         support_size=args.support_size,
         query_size=args.query_size,
         gemma_model=model_mapping[args.model],
+        adapter_mode=args.adapter_mode,
     )
 
     # Initialize trainer
