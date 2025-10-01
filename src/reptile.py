@@ -70,7 +70,7 @@ class ReptileMetaLearner:
         config: ReptileConfig,
         token: Optional[str] = None,
         wandb_api_key: Optional[str] = None,
-        wandb_project: str = "reptile-meta-learning",
+        wandb_project: Optional[str] = None,
         wandb_entity: Optional[str] = None,
     ):
         self.config = config
