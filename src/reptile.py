@@ -178,9 +178,10 @@ class ReptileMetaLearner:
 
     def _inner_loop_step(
         self, support_examples: List[Dict], query_examples: List[Dict]
-    ) -> Tuple[Dict[str, torch.Tensor], float]:
+    ) -> Tuple[Dict[str, torch.Tensor], float, Dict[str, float]]:
         """
         Performs the inner loop adaptation, evaluation, and returns weight differences.
+        Returns: (weight_diff, combined_score, individual_metrics)
         """
         temp_output_dir = "tmp/inner_loop_adapter"
         support_dataset = Dataset.from_list(support_examples).map(self._format_prompt)
@@ -217,6 +218,8 @@ class ReptileMetaLearner:
 
         # Evaluate on the query set
         total_score = 0.0
+        individual_metrics = {"bleu": [], "chrf": []}
+        
         if query_examples:
             for query in query_examples:
                 prompt = (
@@ -241,9 +244,16 @@ class ReptileMetaLearner:
                     translation, query["target_text"], ["bleu", "chrf"]
                 )
                 total_score += scores["bleu"] * 0.6 + scores["chrf"] * 0.4
+                individual_metrics["bleu"].append(scores["bleu"])
+                individual_metrics["chrf"].append(scores["chrf"])
             score = total_score / len(query_examples)
+            avg_individual_metrics = {
+                "bleu": sum(individual_metrics["bleu"]) / len(individual_metrics["bleu"]),
+                "chrf": sum(individual_metrics["chrf"]) / len(individual_metrics["chrf"])
+            }
         else:
             score = 0.0
+            avg_individual_metrics = {"bleu": 0.0, "chrf": 0.0}
 
         adapted_adapter_state = {
             k: v.clone() for k, v in self.model.named_parameters() if "lora" in k
@@ -261,7 +271,7 @@ class ReptileMetaLearner:
             for name in initial_adapter_state
         }
 
-        return weight_diff, score
+        return weight_diff, score, avg_individual_metrics
 
     def adapt_and_evaluate(
         self, support_examples: List[Dict], query_examples: List[Dict]
@@ -271,7 +281,7 @@ class ReptileMetaLearner:
         This function performs the inner loop of Reptile.
         """
         # This method is now a wrapper around _inner_loop_step for evaluation purposes
-        _, score = self._inner_loop_step(support_examples, query_examples)
+        _, score, _ = self._inner_loop_step(support_examples, query_examples)
         return score
 
     def reptile_step(
@@ -280,6 +290,7 @@ class ReptileMetaLearner:
         """Perform one Reptile meta-learning step"""
         task_performances = {}
         accumulated_weight_diffs = {}
+        accumulated_individual_metrics = {"bleu": [], "chrf": []}
         total_performance = 0.0
         valid_tasks = 0
         episodes = []
@@ -299,7 +310,7 @@ class ReptileMetaLearner:
 
             for support_set, query_set in episodes:
                 # Inner loop adaptation and get weight differences
-                weight_diff, episode_score = self._inner_loop_step(
+                weight_diff, episode_score, individual_metrics = self._inner_loop_step(
                     support_set, query_set
                 )
 
@@ -309,6 +320,10 @@ class ReptileMetaLearner:
                 else:
                     for name in accumulated_weight_diffs:
                         accumulated_weight_diffs[name] += weight_diff[name]
+
+                # Accumulate individual metrics
+                accumulated_individual_metrics["bleu"].append(individual_metrics["bleu"])
+                accumulated_individual_metrics["chrf"].append(individual_metrics["chrf"])
 
                 # Evaluate performance on the query set after adaptation
                 task_performance += episode_score
@@ -334,6 +349,14 @@ class ReptileMetaLearner:
 
         avg_performance = total_performance / valid_tasks if valid_tasks > 0 else 0.0
         task_performances["meta_average"] = avg_performance
+        
+        # Add individual metrics for wandb logging
+        if accumulated_individual_metrics["bleu"]:
+            task_performances["bleu"] = sum(accumulated_individual_metrics["bleu"]) / len(accumulated_individual_metrics["bleu"])
+            task_performances["chrf"] = sum(accumulated_individual_metrics["chrf"]) / len(accumulated_individual_metrics["chrf"])
+        else:
+            task_performances["bleu"] = 0.0
+            task_performances["chrf"] = 0.0
 
         return task_performances
 
@@ -427,7 +450,7 @@ class ReptileMetaLearner:
 
             task_scores = []
             for support_set, query_set in episodes:
-                _, score = self._inner_loop_step(support_set, query_set)
+                _, score, _ = self._inner_loop_step(support_set, query_set)
                 task_scores.append(score)
 
             if task_scores:

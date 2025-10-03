@@ -69,7 +69,7 @@ class GemmaTranslationModel:
             # Optimize dtype and loading for different devices and Gemma 3
             if self.device == "mps":
                 # MPS-optimized loading for Gemma 3
-                model_dtype = torch.float16
+                model_dtype = torch.float32
                 device_map = None
             elif self.device == "cuda":
                 model_dtype = torch.float16
@@ -91,6 +91,10 @@ class GemmaTranslationModel:
 
             # Set model to eval mode
             self.model.eval()
+
+            if self.device in {"mps", "cuda"}:
+                self.model.to(self.device)
+                self.model = self.model.to(dtype=model_dtype)
 
             # Configure tokenizer properly
             if self.tokenizer.pad_token is None:
@@ -127,7 +131,8 @@ class GemmaTranslationModel:
         prompt = self._create_prompt(text, source_lang, target_lang, few_shot_examples)
 
         try:
-            inputs = self.tokenizer(prompt, return_tensors="pt").to(self.device)
+            input_device = torch.device(self.device)
+            inputs = self.tokenizer(prompt, return_tensors="pt").to(input_device)
 
             with torch.no_grad():
                 outputs = self.model.generate(

@@ -18,32 +18,71 @@ As our dataset we will use the [TED Talks multilingual corpus](http://aclweb.org
 
 ### Technologies
 
-We intend to use Reptile meta-learning, with LoRA if this proves necessary for the finetuning of a model like Gemma 3 1B or Gemma 3 270m.
+We use **Reptile meta-learning** with **QLoRA** for efficient fine-tuning of Gemma 3 models:
+- **Models**: Primary model Gemma 3 1B (`google/gemma-3-1b-it`)
+- **Meta-learning**: Reptile algorithm for few-shot adaptation
+- **Fine-tuning**: QLoRA (Quantized Low-Rank Adaptation) with 4-bit quantization
+- **Monitoring**: Weights & Biases (wandb) integration for training metrics (BLEU, chrF, meta-average)
+- **Evaluation**: Comprehensive evaluation suite (zero-shot, few-shot, transfer)
 
-## Example Start
+> **Note**: The code supports both 1B and 270M models, but focusing on 1B based on recent commits and better performance potential.
+
+## Setup & Environment
+
+1. **Create environment:**
+```bash
+conda env create -f environment.yml
+conda activate dl4nlp
+```
+
+2. **Set up environment variables** (create `.env` file in project root):
+```bash
+WANDB_API_KEY=your_wandb_api_key_here
+WANDB_ENTITY=gerbennkoopman-university-of-amsterdam
+WANDB_PROJECT=reptile-meta-learning
+HUGGINGFACE_HUB_TOKEN=your_hf_token_here
+```
+
+## Quick Start Guide
+
+### Basic Workflow:
 
 ```bash
-# 1. Activate environment
-conda env create -f environment.yaml
-conda activate dl4nlp
+# 1. Navigate to src directory
+cd src
 
-# 2. Data preparation (already done)
-python3 clean_data.py --data_dir datasets --split all
+# 2. Prepare data (if not already done)
+python clean_data.py --split all
 
-# 3. Run full baseline evaluation
-python3 baseline_eval.py --model 1b --data_dir datasets --output results/baseline_1b.json --max_examples 100
+# 3. Run baseline evaluation 
+python baseline_eval.py --model 1b --max_examples 100
 
-# 4. Train Reptile meta-learning
-python3 train_reptile.py --model 1b --data_dir datasets --output_dir results/reptile_1b --meta_steps 50 --inner_steps 5
+# 4. Train Reptile meta-learning with QLoRA
+python train_reptile.py --model 1b --meta_steps 50 --inner_steps 5
 
 # 5. Evaluate meta-learned model
-python3 evaluate_reptile.py --model 1b --data_dir datasets --output_dir results/eval_1b --support_size 5
+python evaluate_reptile.py --model 1b --support_size 5
 
-# 6. Compare with baseline
-python3 evaluate_reptile.py --model 1b --data_dir datasets --output_dir results/comparison_1b --baseline_file results/baseline_1b.json
+# 6. Compare with baseline (optional)
+python evaluate_reptile.py --model 1b --baseline_file results/baseline_1b.json
 
-# 7. Generate plots
-python3 analyze_results.py --results_dir results --plots_dir results/plots
+# 7. Generate analysis plots
+python analyze_results.py
+```
+
+### Advanced Training Options:
+
+```bash
+# Train with specific adapter mode and language groups
+python train_reptile.py \
+  --model 1b \
+  --meta_steps 100 \
+  --inner_steps 5 \
+  --support_size 5 \
+  --query_size 3 \
+  --adapter_mode all \
+  --language_groups az_tr_en be_uk_en \
+  --output_dir results/reptile_1b
 ```
 
 ### Results analysis options
@@ -88,9 +127,40 @@ You can filter what gets plotted:
     python analyze_results.py
     ```
 
-### TODO
+## Available Scripts
 
-- [x] Implement wandb logging for training monitoring
-- [x] Add QLoRA support for efficient fine-tuning ([docs](https://ai.google.dev/gemma/docs/core/huggingface_text_finetune_qlora))
-- [x] Rewrite Reptile to update QLoRA weights and parameters correctly
-- [ ] Expand evaluations
+| Script | Purpose | Key Parameters |
+|--------|---------|----------------|
+| `train_reptile.py` | Train Reptile meta-learning | `--model`, `--meta_steps`, `--adapter_mode`, `--language_groups` |
+| `evaluate_reptile.py` | Evaluate trained models | `--model`, `--baseline_file`, `--support_size` |
+| `baseline_eval.py` | Run baseline evaluations | `--model`, `--max_examples` |
+| `clean_data.py` | Process TED Talks data | `--split` (train/dev/test/all) |
+| `analyze_results.py` | Generate plots and analysis | `--train_tasks`, `--eval_types` |
+
+## Key Features
+
+✅ **Implemented:**
+- QLoRA fine-tuning with 4-bit quantization for memory efficiency
+- Reptile meta-learning algorithm adapted for QLoRA weights
+- Weights & Biases integration with BLEU/chrF metrics logging  
+- Comprehensive evaluation suite (zero-shot, few-shot, transfer)
+- Flexible adapter modes (all languages, az_en, be_en)
+- Automated results analysis and visualization
+
+🔄 **In Development:**
+- Expanded evaluation metrics and analysis
+- Additional meta-learning baselines for comparison
+
+## Project Structure
+
+```
+DL4NLP/
+├── src/                    # Source code
+│   ├── train_reptile.py    # Main training script
+│   ├── evaluate_reptile.py # Evaluation script  
+│   ├── reptile.py         # Reptile meta-learning implementation
+│   └── [other scripts]
+├── datasets/              # Processed data files
+├── results/               # Training and evaluation results
+└── environment.yml       # Conda environment specification
+```
