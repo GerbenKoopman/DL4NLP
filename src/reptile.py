@@ -19,6 +19,7 @@ from transformers import (
     TrainingArguments,
 )
 from trl.trainer.sft_trainer import SFTTrainer
+from paths import paths as project_paths
 
 logger = logging.getLogger(__name__)
 
@@ -91,27 +92,46 @@ class ReptileMetaLearner:
         logger.info(f"Adapter saved to {output_dir}")
 
     def _load_base_model_and_tokenizer(self):
-        """Load the base Gemma model and tokenizer with QLoRA configuration."""
-        if torch.cuda.get_device_capability()[0] >= 8:
-            dtype = torch.bfloat16
+        """
+        Load the base Gemma model and tokenizer with QLoRA configuration.
+        """
+        # Determine device settings
+        if torch.cuda.is_available():
+            major, _ = torch.cuda.get_device_capability()
+            dtype = torch.bfloat16 if major >= 8 else torch.float16
+            device_map = "auto"
+            use_quantization = True
+            qlora_config = BitsAndBytesConfig(
+                load_in_4bit=True,
+                bnb_4bit_use_double_quant=True,
+                bnb_4bit_quant_type="nf4",
+                bnb_4bit_compute_dtype=dtype,
+            )
         else:
-            dtype = torch.float16
+            # MPS / CPU: Use FP32 without quantization (4-bit not supported on Mac)
+            dtype = torch.float16  # Slightly less memory than float32
+            device_map = None
+            use_quantization = False
+            qlora_config = None
 
-        quantization_config = BitsAndBytesConfig(
-            load_in_4bit=True,
-            bnb_4bit_use_double_quant=True,
-            bnb_4bit_quant_type="nf4",
-            bnb_4bit_compute_dtype=dtype,
-        )
+        model_kwargs = {
+            "attn_implementation": "eager",
+            "dtype": dtype,
+            "token": self.token,
+        }
+
+        if use_quantization:
+            model_kwargs["quantization_config"] = qlora_config
+            model_kwargs["device_map"] = device_map
+            model_kwargs["low_cpu_mem_usage"] = True
 
         model = AutoModelForCausalLM.from_pretrained(
             self.config.qlora_config.gemma_model,
-            quantization_config=quantization_config,
-            device_map="auto",
-            attn_implementation="eager",
-            dtype=dtype,
-            token=self.token,
+            **model_kwargs,
         )
+
+        if not use_quantization:
+            model = model.to("mps" if torch.backends.mps.is_available() else "cpu")
 
         peft_config = LoraConfig(
             r=self.config.qlora_config.lora_r,
@@ -183,7 +203,7 @@ class ReptileMetaLearner:
         Performs the inner loop adaptation, evaluation, and returns weight differences.
         Returns: (weight_diff, combined_score, individual_metrics)
         """
-        temp_output_dir = "tmp/inner_loop_adapter"
+        temp_output_dir = str(project_paths.base_dir / "tmp" / "inner_loop_adapter")
         support_dataset = Dataset.from_list(support_examples).map(self._format_prompt)
 
         training_args = TrainingArguments(
@@ -200,6 +220,10 @@ class ReptileMetaLearner:
             save_strategy="no",
             report_to="wandb" if self.wandb_api_key else [],
         )
+
+        if not torch.cuda.is_available():
+            training_args.fp16 = False
+            training_args.bf16 = False
 
         trainer = SFTTrainer(
             model=self.model,
@@ -412,7 +436,7 @@ class ReptileMetaLearner:
 
             # Log progress
             if self.wandb_api_key:
-                wandb.log(step_performances, step=meta_step)
+                wandb.log({"meta_step": meta_step, **step_performances})
             if meta_step % 10 == 0:
                 avg_perf = step_performances.get("meta_average", 0.0)
                 logger.info(

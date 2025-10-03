@@ -1,0 +1,76 @@
+{
+  "config": {
+    "meta_steps": 2,
+    "inner_steps": 1,
+    "support_size": 5,
+    "query_size": 3,
+    "model": "google/gemma-3-1b-it",
+    "base_langs": [
+      "az",
+      "be",
+      "en"
+    ],
+    "target_langs": [
+      "tr",
+      "uk"
+    ],
+    "adapter_mode": "all"
+  },
+  "training_history": {
+    "en_az": [
+      1.4957787212021045,
+      1.4772384293580298
+    ],
+    "en_be": [
+      0.38345364700927426,
+      0.6769120499596798
+    ],
+    "be_en": [
+      7.773516696609199,
+      8.98394401469756
+    ],
+    "az_en": [
+      10.352705903814156,
+      10.606392972501562
+    ],
+    "meta_average": [
+      5.001363742158683,
+      5.4361218666292075
+    ],
+    "test_performance": [
+      NaN
+    ]
+  },
+  "final_performance": {
+    "en_az": {
+      "initial": 1.4957787212021045,
+      "final": 1.4772384293580298,
+      "improvement": -0.018540291844074686
+    },
+    "en_be": {
+      "initial": 0.38345364700927426,
+      "final": 0.6769120499596798,
+      "improvement": 0.29345840295040554
+    },
+    "be_en": {
+      "initial": 7.773516696609199,
+      "final": 8.98394401469756,
+      "improvement": 1.2104273180883611
+    },
+    "az_en": {
+      "initial": 10.352705903814156,
+      "final": 10.606392972501562,
+      "improvement": 0.2536870686874053
+    },
+    "meta_average": {
+      "initial": 5.001363742158683,
+      "final": 5.4361218666292075,
+      "improvement": 0.4347581244705241
+    },
+    "test_performance": {
+      "initial": NaN,
+      "final": NaN,
+      "improvement": 0.0
+    }
+  }
+}
