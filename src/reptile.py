@@ -7,11 +7,13 @@ import torch
 import logging
 import numpy as np
 import wandb
+import random
+from pathlib import Path
 from typing import List, Dict, Tuple, Optional
 from dataclasses import dataclass, field, asdict
 from evaluation import TranslationEvaluator
 from datasets import Dataset
-from peft import LoraConfig, get_peft_model
+from peft import LoraConfig, PeftModel, get_peft_model
 from transformers import (
     AutoModelForCausalLM,
     AutoTokenizer,
@@ -56,8 +58,12 @@ class ReptileConfig:
     )
     gemma_model: str = "google/gemma-3-1b-it"
     max_length: int = 128
-    meta_lr: float = 0.1  # Meta-learning rate
+    meta_lr: float = 0.1  # Meta-learning rate (0.0 = no meta-update for ablation)
     adapter_mode: str = "all"  # "all", "az_en", "be_en"
+    bleu_weight: float = 0.6  # Weight for BLEU in combined metric
+    chrf_weight: float = 0.4  # Weight for chrF in combined metric
+    episodes_per_task: int = 3  # Number of episodes to sample per task type
+    random_seed: int = 42  # Random seed for reproducibility
 
     base_langs: List[str] = field(default_factory=lambda: ["az", "be", "en"])
     target_langs: List[str] = field(default_factory=lambda: ["tr", "uk"])
@@ -74,9 +80,25 @@ class ReptileMetaLearner:
         wandb_api_key: Optional[str] = None,
         wandb_project: Optional[str] = None,
         wandb_entity: Optional[str] = None,
+        adapter_path: Optional[str] = None,
     ):
         self.config = config
         self.token = token
+        self.adapter_path = adapter_path
+        
+        # Set random seeds for reproducibility
+        torch.manual_seed(config.random_seed)
+        np.random.seed(config.random_seed)
+        random.seed(config.random_seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(config.random_seed)
+            torch.backends.cudnn.deterministic = True
+            torch.backends.cudnn.benchmark = False
+        
+        # Ensure QLoRA config aligns with selected model/tokenizer
+        self.config.qlora_config.gemma_model = self.config.gemma_model
+        self.config.qlora_config.tokenizer_model = self.config.gemma_model
+
         self.model, self.tokenizer = self._load_base_model_and_tokenizer()
         self.evaluator = TranslationEvaluator()
         self.wandb_api_key = wandb_api_key
@@ -85,6 +107,7 @@ class ReptileMetaLearner:
         if self.wandb_api_key:
             wandb.login(key=self.wandb_api_key)
         logger.info(f"Initialized Reptile meta-learner with QLoRA on {config.device}")
+        logger.info(f"Config: meta_lr={config.meta_lr}, inner_steps={config.inner_steps}, seed={config.random_seed}")
 
     def save_adapter(self, output_dir: str):
         """Save the trained LoRA adapter."""
@@ -133,18 +156,37 @@ class ReptileMetaLearner:
         if not use_quantization:
             model = model.to("mps" if torch.backends.mps.is_available() else "cpu")
 
-        peft_config = LoraConfig(
-            r=self.config.qlora_config.lora_r,
-            lora_alpha=self.config.qlora_config.lora_alpha,
-            lora_dropout=self.config.qlora_config.lora_dropout,
-            bias="none",
-            task_type="CAUSAL_LM",
-            target_modules="all-linear",
-        )
-        model = get_peft_model(model, peft_config)
-        self.peft_config = peft_config
+        adapter_path = Path(self.adapter_path) if self.adapter_path else None
 
-        # Freeze the base model
+        if adapter_path:
+            if not adapter_path.exists():
+                raise FileNotFoundError(
+                    f"Adapter path {adapter_path} not found. Provide a valid adapter directory."
+                )
+            logger.info(f"Loading existing LoRA adapter from {adapter_path}")
+            model = PeftModel.from_pretrained(model, adapter_path, is_trainable=True)
+            self.peft_config = model.peft_config.get("default")
+            if self.peft_config is None:
+                raise ValueError(
+                    "Loaded adapter does not contain a 'default' peft configuration."
+                )
+            # Keep config in sync with loaded adapter
+            self.config.qlora_config.lora_r = self.peft_config.r
+            self.config.qlora_config.lora_alpha = self.peft_config.lora_alpha
+            self.config.qlora_config.lora_dropout = self.peft_config.lora_dropout
+        else:
+            peft_config = LoraConfig(
+                r=self.config.qlora_config.lora_r,
+                lora_alpha=self.config.qlora_config.lora_alpha,
+                lora_dropout=self.config.qlora_config.lora_dropout,
+                bias="none",
+                task_type="CAUSAL_LM",
+                target_modules="all-linear",
+            )
+            model = get_peft_model(model, peft_config)
+            self.peft_config = peft_config
+
+        # Freeze the base model (keep LoRA trainable)
         for name, param in model.named_parameters():
             if "lora" not in name:
                 param.requires_grad = False
@@ -181,7 +223,7 @@ class ReptileMetaLearner:
 
         episodes = []
         # Create multiple episodes by shuffling the data
-        for _ in range(3):  # Create 3 episodes per task type
+        for _ in range(self.config.episodes_per_task):
             task_examples_np = np.array(task_examples)
             np.random.shuffle(task_examples_np)
             shuffled_examples = task_examples_np.tolist()
@@ -237,7 +279,8 @@ class ReptileMetaLearner:
             k: v.clone() for k, v in self.model.named_parameters() if "lora" in k
         }
 
-        if support_examples:
+        # Guard: only train if inner_steps > 0 (for ablation study)
+        if support_examples and self.config.inner_steps > 0:
             trainer.train()
 
         # Evaluate on the query set
@@ -267,7 +310,8 @@ class ReptileMetaLearner:
                 scores = self.evaluator.evaluate_translation(
                     translation, query["target_text"], ["bleu", "chrf"]
                 )
-                total_score += scores["bleu"] * 0.6 + scores["chrf"] * 0.4
+                # Use configurable metric weights
+                total_score += scores["bleu"] * self.config.bleu_weight + scores["chrf"] * self.config.chrf_weight
                 individual_metrics["bleu"].append(scores["bleu"])
                 individual_metrics["chrf"].append(scores["chrf"])
             score = total_score / len(query_examples)
@@ -317,7 +361,7 @@ class ReptileMetaLearner:
         accumulated_individual_metrics = {"bleu": [], "chrf": []}
         total_performance = 0.0
         valid_tasks = 0
-        episodes = []
+        episodes_processed = 0
 
         # Sample tasks for this meta-step
         sampled_tasks = np.random.choice(
@@ -337,6 +381,7 @@ class ReptileMetaLearner:
                 weight_diff, episode_score, individual_metrics = self._inner_loop_step(
                     support_set, query_set
                 )
+                episodes_processed += 1
 
                 # Accumulate weight differences
                 if not accumulated_weight_diffs:
@@ -360,14 +405,18 @@ class ReptileMetaLearner:
                 valid_tasks += 1
 
         # Apply the Reptile meta-update after processing the batch of tasks
-        if accumulated_weight_diffs and valid_tasks > 0:
+        # Guard: only apply if meta_lr > 0 (for ablation study)
+        if (
+            accumulated_weight_diffs
+            and valid_tasks > 0
+            and episodes_processed > 0
+            and self.config.meta_lr > 0
+        ):
             with torch.no_grad():
                 for name, param in self.model.named_parameters():
                     if "lora" in name and name in accumulated_weight_diffs:
                         # Average the accumulated differences
-                        avg_diff = accumulated_weight_diffs[name] / (
-                            valid_tasks * len(episodes)
-                        )
+                        avg_diff = accumulated_weight_diffs[name] / episodes_processed
                         # Reptile update rule
                         param.data += self.config.meta_lr * avg_diff
 
@@ -581,7 +630,8 @@ class ReptileMetaLearner:
                 total_bleu += scores["bleu"]
                 total_chrf += scores["chrf"]
 
-            performance = 0.6 * (total_bleu / len(query_examples)) + 0.4 * (
+            # Use configurable metric weights
+            performance = self.config.bleu_weight * (total_bleu / len(query_examples)) + self.config.chrf_weight * (
                 total_chrf / len(query_examples)
             )
             results[task_type] = performance

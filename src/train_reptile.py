@@ -152,6 +152,11 @@ class ReptileTrainer:
                 "base_langs": self.config.base_langs,
                 "target_langs": self.config.target_langs,
                 "adapter_mode": self.config.adapter_mode,
+                "meta_lr": self.config.meta_lr,
+                "bleu_weight": self.config.bleu_weight,
+                "chrf_weight": self.config.chrf_weight,
+                "random_seed": self.config.random_seed,
+                "episodes_per_task": self.config.episodes_per_task,
             },
             "training_history": training_history,
             "final_performance": {},
@@ -236,6 +241,9 @@ class ReptileTrainer:
         print(f"Support size: {config['support_size']}")
         print(f"Base languages: {', '.join(config['base_langs'])}")
         print(f"Adapter Mode: {config['adapter_mode']}")
+        print(f"Meta LR: {config.get('meta_lr', 0.1)}")
+        print(f"Metric weights: BLEU={config.get('bleu_weight', 0.6):.2f}, chrF={config.get('chrf_weight', 0.4):.2f}")
+        print(f"Random seed: {config.get('random_seed', 42)}")
 
         print(f"\nFinal Performance:")
         for task_type, metrics in results["final_performance"].items():
@@ -258,7 +266,7 @@ def main():
         description="Train Reptile meta-learning for translation"
     )
     parser.add_argument(
-        "--model", choices=["270m", "1b"], default="1b", help="Model size to train"
+        "--model", choices=["270m", "1b", "4b"], default="1b", help="Model size to train"
     )
     parser.add_argument(
         "--adapter_mode",
@@ -292,6 +300,30 @@ def main():
         default=["az_tr_en", "be_uk_en"],
         help="Language groups to use for training (e.g., az_tr_en be_uk_en)",
     )
+    parser.add_argument(
+        "--meta_lr",
+        type=float,
+        default=0.1,
+        help="Meta-learning rate (set to 0.0 to disable Reptile updates for ablation)",
+    )
+    parser.add_argument(
+        "--bleu_weight",
+        type=float,
+        default=0.6,
+        help="Weight for BLEU in combined metric (chrF weight = 1 - bleu_weight)",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help="Random seed for reproducibility",
+    )
+    parser.add_argument(
+        "--episodes_per_task",
+        type=int,
+        default=3,
+        help="Number of episodes to sample per task type",
+    )
 
     args = parser.parse_args()
 
@@ -303,7 +335,11 @@ def main():
     wandb_project = os.getenv("WANDB_PROJECT")
 
     # Map model choices to actual model names
-    model_mapping = {"270m": "google/gemma-3-270m-it", "1b": "google/gemma-3-1b-it"}
+    model_mapping = {
+        "270m": "google/gemma-3-270m-it",
+        "1b": "google/gemma-3-1b-it",
+        "4b": "google/gemma-3-4b-it",
+    }
 
     # Create configuration
     config = ReptileConfig(
@@ -313,6 +349,11 @@ def main():
         query_size=args.query_size,
         gemma_model=model_mapping[args.model],
         adapter_mode=args.adapter_mode,
+        meta_lr=args.meta_lr,
+        bleu_weight=args.bleu_weight,
+        chrf_weight=1.0 - args.bleu_weight,
+        random_seed=args.seed,
+        episodes_per_task=args.episodes_per_task,
     )
 
     # Initialize trainer

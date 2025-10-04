@@ -309,7 +309,7 @@ class BaselineEvaluator:
 def main():
     parser = argparse.ArgumentParser(description="Baseline evaluation of Gemma models")
     parser.add_argument(
-        "--model", choices=["270m", "1b"], default="1b", help="Model size to evaluate"
+        "--model", choices=["270m", "1b", "4b"], default="1b", help="Model size to evaluate"
     )
     parser.add_argument(
         "--output",
@@ -336,7 +336,11 @@ def main():
     token = os.getenv("HUGGINGFACE_HUB_TOKEN")
 
     # Map model choices to actual model names
-    model_mapping = {"270m": "google/gemma-3-270m-it", "1b": "google/gemma-3-1b-it"}
+    model_mapping = {
+        "270m": "google/gemma-3-270m-it",
+        "1b": "google/gemma-3-1b-it",
+        "4b": "google/gemma-3-4b-it",
+    }
 
     model_name = model_mapping[args.model]
 

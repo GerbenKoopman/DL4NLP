@@ -33,6 +33,7 @@ class ReptileEvaluator:
         wandb_api_key: Optional[str] = None,
         wandb_entity: Optional[str] = None,
         wandb_project: Optional[str] = None,
+        adapter_path: Optional[str] = None,
     ):
         self.config = config
         self.meta_learner = ReptileMetaLearner(
@@ -41,8 +42,10 @@ class ReptileEvaluator:
             wandb_api_key=wandb_api_key,
             wandb_entity=wandb_entity,
             wandb_project=wandb_project,
+            adapter_path=adapter_path,
         )
         self.language_groups = language_groups or []
+        self.adapter_path = adapter_path
 
     def load_test_data(self) -> List[Dict]:
         """Load and prepare test data from specified language groups."""
@@ -350,7 +353,7 @@ def main():
         description="Evaluate Reptile meta-learning for translation"
     )
     parser.add_argument(
-        "--model", choices=["270m", "1b"], default="1b", help="Model size to evaluate"
+        "--model", choices=["270m", "1b", "4b"], default="1b", help="Model size to evaluate"
     )
     parser.add_argument(
         "--output_dir",
@@ -370,6 +373,23 @@ def main():
         default=["az_tr_en", "be_uk_en"],
         help="Language groups to use for evaluation (e.g., az_tr_en be_uk_en)",
     )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help="Random seed for reproducibility",
+    )
+    parser.add_argument(
+        "--adapter_mode",
+        choices=["all", "az_en", "be_en"],
+        default="all",
+        help="Adapter mode used during training (determines default adapter path)",
+    )
+    parser.add_argument(
+        "--adapter_dir",
+        default=None,
+        help="Directory containing trained adapter (defaults to output_dir/adapters/<model>_<adapter_mode>)",
+    )
 
     args = parser.parse_args()
 
@@ -381,11 +401,18 @@ def main():
     wandb_project = os.getenv("WANDB_PROJECT")
 
     # Map model choices to actual model names
-    model_mapping = {"270m": "google/gemma-3-270m-it", "1b": "google/gemma-3-1b-it"}
+    model_mapping = {
+        "270m": "google/gemma-3-270m-it",
+        "1b": "google/gemma-3-1b-it",
+        "4b": "google/gemma-3-4b-it",
+    }
 
     # Create configuration
     config = ReptileConfig(
-        support_size=args.support_size, gemma_model=model_mapping[args.model]
+        support_size=args.support_size,
+        gemma_model=model_mapping[args.model],
+        random_seed=args.seed,
+        adapter_mode=args.adapter_mode,
     )
 
     # Initialize evaluator
@@ -396,6 +423,7 @@ def main():
         wandb_api_key=wandb_api_key,
         wandb_entity=wandb_entity,
         wandb_project=wandb_project,
+        adapter_path=args.adapter_dir,
     )
 
     try:

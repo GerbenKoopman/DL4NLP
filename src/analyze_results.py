@@ -173,15 +173,139 @@ def summarize_comparison(json_path: Path, out_dir: Path) -> None:
     logger.info(f"Saved {out_png}")
 
 
+def plot_ablation_comparison(
+    ablation_csv: Path, out_dir: Path, metric: str = "transfer_5"
+) -> None:
+    """Plot ablation study comparison across configurations
+    
+    Args:
+        ablation_csv: Path to aggregated_results_*.csv from ablation study
+        out_dir: Output directory for plots
+        metric: Evaluation type to focus on (e.g., "transfer_5", "few_shot_5")
+    """
+    df = pd.read_csv(ablation_csv)
+    
+    # Filter to target metric
+    df_metric = df[df["evaluation_type"] == metric].copy()
+    
+    if df_metric.empty:
+        logger.warning(f"No data for metric {metric} in {ablation_csv.name}")
+        return
+    
+    # Aggregate by config (mean across tasks)
+    config_scores = (
+        df_metric.groupby("config_name")["score"].mean().sort_values(ascending=False)
+    )
+    
+    # Plot 1: Overall comparison
+    plt.figure(figsize=(14, max(6, len(config_scores) * 0.3)))
+    colors = plt.cm.viridis(range(len(config_scores)))
+    plt.barh(range(len(config_scores)), config_scores.values, color=colors)
+    plt.yticks(range(len(config_scores)), config_scores.index, fontsize=8)
+    plt.xlabel(f"Mean Score ({metric})")
+    plt.ylabel("Configuration")
+    plt.title(f"Ablation Study: {metric.replace('_', ' ').title()} Performance")
+    plt.tight_layout()
+    
+    out_file = out_dir / f"ablation_comparison_{metric}.png"
+    plt.savefig(out_file, dpi=200)
+    plt.close()
+    logger.info(f"Saved {out_file}")
+    
+    # Plot 2: Heatmap by task type
+    pivot = df_metric.pivot_table(
+        index="config_name", columns="task_type", values="score", aggfunc="mean"
+    )
+    
+    if not pivot.empty:
+        plt.figure(figsize=(10, max(8, len(pivot) * 0.4)))
+        vmin = float(pivot.values.min())
+        vmax = float(pivot.values.max())
+        # Avoid zero range for constant matrices
+        if abs(vmax - vmin) < 1e-6:
+            vmax = vmin + 1e-6
+        plt.imshow(pivot.values, aspect="auto", cmap="RdYlGn", vmin=vmin, vmax=vmax)
+        plt.colorbar(label="Score")
+        plt.yticks(range(len(pivot)), pivot.index, fontsize=7)
+        plt.xticks(range(len(pivot.columns)), pivot.columns, rotation=45, ha="right")
+        plt.title(f"Ablation Study Heatmap: {metric.replace('_', ' ').title()}")
+        plt.tight_layout()
+        
+        out_file = out_dir / f"ablation_heatmap_{metric}.png"
+        plt.savefig(out_file, dpi=200)
+        plt.close()
+        logger.info(f"Saved {out_file}")
+
+
+def plot_ablation_factors(ablation_csv: Path, out_dir: Path) -> None:
+    """Plot effect of individual ablation factors
+    
+    Analyzes meta_lr, inner_steps, support_size, adapter_mode effects
+    """
+    df = pd.read_csv(ablation_csv)
+    
+    # Parse config names to extract factors (assumes naming: metaLR0.10_inner3_support5_az_en_bleu0.60_seed42)
+    def parse_config(config_name: str) -> dict:
+        parts = config_name.split("_")
+        factors = {}
+        for part in parts:
+            if part.startswith("metaLR"):
+                factors["meta_lr"] = float(part.replace("metaLR", ""))
+            elif part.startswith("inner"):
+                factors["inner_steps"] = int(part.replace("inner", ""))
+            elif part.startswith("support"):
+                factors["support_size"] = int(part.replace("support", ""))
+            elif part in ["az_en", "be_en", "all"]:
+                factors["adapter_mode"] = part
+            elif part.startswith("bleu"):
+                factors["bleu_weight"] = float(part.replace("bleu", ""))
+        return factors
+    
+    # Add factor columns
+    factor_data = df["config_name"].apply(parse_config).apply(pd.Series)
+    df = pd.concat([df, factor_data], axis=1)
+    
+    # Focus on transfer_5 for ablation analysis
+    df_transfer = df[df["evaluation_type"] == "transfer_5"].copy()
+    
+    if df_transfer.empty:
+        logger.warning(f"No transfer_5 data in {ablation_csv.name}")
+        return
+    
+    # Plot effects of each factor
+    factors_to_plot = ["meta_lr", "inner_steps", "support_size", "adapter_mode"]
+    
+    fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+    axes = axes.flatten()
+    
+    for idx, factor in enumerate(factors_to_plot):
+        if factor not in df_transfer.columns:
+            continue
+        
+        # Aggregate scores by factor value
+        factor_scores = (
+            df_transfer.groupby(factor)["score"].agg(["mean", "std"]).reset_index()
+        )
+        
+        ax = axes[idx]
+        x_vals = range(len(factor_scores))
+        ax.bar(x_vals, factor_scores["mean"], yerr=factor_scores["std"].fillna(0.0), capsize=5)
+        ax.set_xticks(x_vals)
+        ax.set_xticklabels(factor_scores[factor], rotation=0 if idx < 2 else 45)
+        ax.set_xlabel(factor.replace("_", " ").title())
+        ax.set_ylabel("Mean Transfer Score")
+        ax.set_title(f"Effect of {factor.replace('_', ' ').title()}")
+        ax.grid(axis="y", alpha=0.3)
+    
+    plt.tight_layout()
+    out_file = out_dir / "ablation_factor_effects.png"
+    plt.savefig(out_file, dpi=200)
+    plt.close()
+    logger.info(f"Saved {out_file}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Analyze and visualize DL4NLP results")
-    # No longer needed, using paths object
-    # parser.add_argument(
-    #     "--results_dir", default="results", help="Path to results directory"
-    # )
-    # parser.add_argument(
-    #     "--plots_dir", default="results/plots", help="Where to save plots"
-    # )
     # Training history filters
     parser.add_argument(
         "--train_tasks",
@@ -202,6 +326,16 @@ def main() -> None:
         "--eval_types",
         default="all",
         help='Comma-separated evaluation types to include (e.g., zero_shot,few_shot_5,transfer_5) or "all"',
+    )
+    parser.add_argument(
+        "--ablation",
+        action="store_true",
+        help="Generate ablation study plots from results/ablation/",
+    )
+    parser.add_argument(
+        "--ablation_metric",
+        default="transfer_5",
+        help="Metric to focus on for ablation comparison (default: transfer_5)",
     )
     args = parser.parse_args()
 
@@ -257,6 +391,20 @@ def main() -> None:
         logger.info("No baseline vs reptile comparison JSONs found.")
     for json_path in comp_jsons:
         summarize_comparison(json_path, plots_dir)
+
+    # 4) Ablation study analysis
+    if args.ablation:
+        logger.info("Generating ablation study plots...")
+        ablation_dir = results_dir / "ablation"
+        if ablation_dir.exists():
+            ablation_csvs = find_files(["aggregated_results_*.csv"], ablation_dir)
+            if not ablation_csvs:
+                logger.warning("No aggregated ablation results found.")
+            for csv_path in ablation_csvs:
+                plot_ablation_comparison(csv_path, plots_dir, metric=args.ablation_metric)
+                plot_ablation_factors(csv_path, plots_dir)
+        else:
+            logger.warning(f"Ablation directory not found: {ablation_dir}")
 
     logger.info("Analysis complete.")
 

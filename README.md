@@ -19,13 +19,14 @@ As our dataset we will use the [TED Talks multilingual corpus](http://aclweb.org
 ### Technologies
 
 We use **Reptile meta-learning** with **QLoRA** for efficient fine-tuning of Gemma 3 models:
-- **Models**: Primary model Gemma 3 1B (`google/gemma-3-1b-it`)
+- **Models**: Gemma 3 variants - 270M, 1B (primary), and 4B (`google/gemma-3-*-it`)
 - **Meta-learning**: Reptile algorithm for few-shot adaptation
-- **Fine-tuning**: QLoRA (Quantized Low-Rank Adaptation) with 4-bit quantization
+- **Fine-tuning**: QLoRA (Quantized Low-Rank Adaptation) with 4-bit quantization (CUDA) or FP16 (MPS/CPU)
 - **Monitoring**: Weights & Biases (wandb) integration for training metrics (BLEU, chrF, meta-average)
 - **Evaluation**: Comprehensive evaluation suite (zero-shot, few-shot, transfer)
+- **Ablation**: Systematic ablation study infrastructure to quantify component contributions
 
-> **Note**: The code supports both 1B and 270M models, but focusing on 1B based on recent commits and better performance potential.
+> **Note**: 1B is recommended for development; 4B for final runs with CUDA GPUs (requires ~20-24GB VRAM with 4-bit quantization).
 
 ## Setup & Environment
 
@@ -60,8 +61,8 @@ python baseline_eval.py --model 1b --max_examples 100
 # 4. Train Reptile meta-learning with QLoRA
 python train_reptile.py --model 1b --meta_steps 50 --inner_steps 5
 
-# 5. Evaluate meta-learned model
-python evaluate_reptile.py --model 1b --support_size 5
+# 5. Evaluate meta-learned model (loads adapter from results/adapters/...)
+python evaluate_reptile.py --model 1b --support_size 5 --adapter_mode all
 
 # 6. Compare with baseline (optional)
 python evaluate_reptile.py --model 1b --baseline_file results/baseline_1b.json
@@ -82,7 +83,25 @@ python train_reptile.py \
   --query_size 3 \
   --adapter_mode all \
   --language_groups az_tr_en be_uk_en \
+  --meta_lr 0.1 \
+  --bleu_weight 0.6 \
+  --seed 42 \
   --output_dir results/reptile_1b
+
+# Train 4B model (requires CUDA GPU with ~24GB VRAM)
+python train_reptile.py \
+  --model 4b \
+  --meta_steps 50 \
+  --inner_steps 3 \
+  --support_size 5 \
+  --adapter_mode all
+
+# Evaluate trained adapter (default adapter path under output_dir/adapters)
+python evaluate_reptile.py \
+  --model 4b \
+  --support_size 5 \
+  --adapter_mode all \
+  --adapter_dir results/adapters/gemma-3-4b-it_all
 ```
 
 ### Results analysis options
@@ -131,36 +150,143 @@ You can filter what gets plotted:
 
 | Script | Purpose | Key Parameters |
 |--------|---------|----------------|
-| `train_reptile.py` | Train Reptile meta-learning | `--model`, `--meta_steps`, `--adapter_mode`, `--language_groups` |
-| `evaluate_reptile.py` | Evaluate trained models | `--model`, `--baseline_file`, `--support_size` |
+| `train_reptile.py` | Train Reptile meta-learning | `--model`, `--meta_steps`, `--adapter_mode`, `--meta_lr`, `--seed` |
+| `evaluate_reptile.py` | Evaluate trained models | `--model`, `--baseline_file`, `--support_size`, `--seed` |
 | `baseline_eval.py` | Run baseline evaluations | `--model`, `--max_examples` |
 | `clean_data.py` | Process TED Talks data | `--split` (train/dev/test/all) |
-| `analyze_results.py` | Generate plots and analysis | `--train_tasks`, `--eval_types` |
+| `analyze_results.py` | Generate plots and analysis | `--train_tasks`, `--eval_types`, `--ablation` |
+| `run_ablation_study.py` | Run ablation experiments | `--model`, `--ablation_type`, `--skip_training`, `--aggregate_only` |
 
 ## Key Features
 
 ✅ **Implemented:**
-- QLoRA fine-tuning with 4-bit quantization for memory efficiency
+- QLoRA fine-tuning with 4-bit quantization for memory efficiency (CUDA) or FP16 (MPS/CPU)
 - Reptile meta-learning algorithm adapted for QLoRA weights
 - Weights & Biases integration with BLEU/chrF metrics logging  
 - Comprehensive evaluation suite (zero-shot, few-shot, transfer)
 - Flexible adapter modes (all languages, az_en, be_en)
 - Automated results analysis and visualization
+- **Ablation study infrastructure** with systematic grid search
+- **Multi-scale support** (270M, 1B, 4B models)
+- **Reproducible experiments** with seed control and configurable metrics
 
 🔄 **In Development:**
-- Expanded evaluation metrics and analysis
-- Additional meta-learning baselines for comparison
+- Additional meta-learning baselines for comparison (MAML, ProtoNet)
+
+## Ablation Study
+
+### Running Ablation Experiments
+
+The ablation study systematically tests which components of the Reptile+QLoRA pipeline contribute to performance:
+
+**Minimal ablation** (recommended first pass, 16 configs):
+```bash
+cd src
+python run_ablation_study.py --model 1b --ablation_type minimal
+```
+
+**Extended ablation** (more comprehensive):
+```bash
+python run_ablation_study.py --model 1b --ablation_type extended
+```
+
+**Metric sensitivity only**:
+```bash
+python run_ablation_study.py --model 1b --ablation_type metric_only
+```
+
+**Aggregate and visualize existing results**:
+```bash
+python run_ablation_study.py --aggregate_only
+python analyze_results.py --ablation --ablation_metric transfer_5
+```
+
+### Ablation Factors Tested
+
+| Factor | Values | Hypothesis |
+|--------|--------|------------|
+| `meta_lr` | 0.0, 0.05, 0.1 | Does Reptile meta-update improve over pure adaptation? |
+| `inner_steps` | 0, 1, 3, 5 | How much inner-loop training is needed? |
+| `support_size` | 1, 5 | 1-shot vs 5-shot efficiency |
+| `adapter_mode` | az_en, be_en, all | Does multi-family training help transfer? |
+| `bleu_weight` | 0.5, 0.6 | Metric weighting sensitivity |
+| `episodes_per_task` | 1, 3 | Variance vs compute tradeoff |
+
+### Interpreting Results
+
+- **meta_lr=0.0**: Control for "no meta-learning" (pure few-shot adaptation)
+- **inner_steps=0**: Control for "no adaptation" (zero-shot baseline)
+- **adapter_mode**: Tests whether training on both language families (az_en + be_en) improves transfer to both target families (Turkish, Ukrainian)
+
+Results are saved to:
+- `results/ablation/ablation_summary_*.json` - Full experiment log
+- `results/ablation/aggregated_results_*.csv` - All eval scores in table format
+- `results/plots/ablation_comparison_*.png` - Visual comparisons
+- `results/plots/ablation_factor_effects.png` - Individual factor effects
+
+## Scaling to Larger Models
+
+### Gemma 3 4B Model
+
+The 4B model offers ~4× capacity vs 1B with QLoRA fine-tuning feasibility:
+
+**Requirements:**
+- CUDA GPU with ≥24GB VRAM (e.g., RTX 4090, A5000, A6000)
+- 4-bit quantization enabled (automatic on CUDA)
+- Typical memory: ~8-12GB base model + ~8-12GB optimizer/activations with LoRA
+
+**Training 4B:**
+```bash
+cd src
+python train_reptile.py \
+  --model 4b \
+  --meta_steps 50 \
+  --inner_steps 3 \
+  --support_size 5 \
+  --adapter_mode all
+```
+
+**Evaluation:**
+```bash
+python evaluate_reptile.py --model 4b --support_size 5
+```
+
+**Baseline for comparison:**
+```bash
+python baseline_eval.py --model 4b --max_examples 50
+```
+
+**Memory optimization tips** (if OOM):
+- Reduce `max_length` in `ReptileConfig` (default 128)
+- Set `per_device_train_batch_size=1` (default already 1)
+- Reduce LoRA `r` from 16 to 8 in `QLoRAConfig`
+- Enable gradient checkpointing in `TrainingArguments`
+
+### Performance vs Cost Tradeoffs
+
+| Model | Params | VRAM (4-bit) | Training Time* | Expected BLEU Δ** |
+|-------|--------|--------------|----------------|-------------------|
+| 270M  | 270M   | ~4-6 GB      | 1× (baseline)  | Baseline          |
+| 1B    | 1B     | ~8-12 GB     | ~2-3×          | +5-10 pts         |
+| 4B    | 4B     | ~20-24 GB    | ~6-8×          | +3-7 pts over 1B  |
+
+\* Relative to 270M on same hardware; \*\* Speculative estimates based on typical scaling laws
 
 ## Project Structure
 
 ```
 DL4NLP/
-├── src/                    # Source code
-│   ├── train_reptile.py    # Main training script
-│   ├── evaluate_reptile.py # Evaluation script  
-│   ├── reptile.py         # Reptile meta-learning implementation
+├── src/                       # Source code
+│   ├── train_reptile.py       # Main training script
+│   ├── evaluate_reptile.py    # Evaluation script  
+│   ├── reptile.py             # Reptile meta-learning implementation
+│   ├── run_ablation_study.py  # Ablation experiment runner
+│   ├── analyze_results.py     # Results analysis and plotting
 │   └── [other scripts]
-├── datasets/              # Processed data files
-├── results/               # Training and evaluation results
-└── environment.yml       # Conda environment specification
+├── datasets/                  # Processed data files
+├── results/                   # Training and evaluation results
+│   ├── ablation/              # Ablation study results
+│   ├── adapters/              # Trained LoRA adapters
+│   └── plots/                 # Generated visualizations
+└── environment.yml            # Conda environment specification
 ```
