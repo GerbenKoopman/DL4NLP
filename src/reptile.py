@@ -538,9 +538,52 @@ class ReptileMetaLearner:
             if not task_examples:
                 continue
 
-            # Evaluate on a few examples without a support set
+            # Evaluate on a few examples without adaptation (zero-shot)
             query_examples = task_examples[:5]
-            performance = self.adapt_and_evaluate([], query_examples)
+
+            if not query_examples:
+                logger.warning(
+                    "No query examples available for zero-shot evaluation on %s", task_type
+                )
+                results[task_type] = 0.0
+                continue
+
+            total_bleu = 0.0
+            total_chrf = 0.0
+
+            for example in query_examples:
+                prompt = (
+                    self._format_prompt(example)["text"].split("Translation:")[0]
+                    + "Translation:"
+                )
+
+                inputs = self.tokenizer(prompt, return_tensors="pt").to(
+                    self.config.device
+                )
+
+                with torch.no_grad():
+                    outputs = self.model.generate(
+                        **inputs,
+                        max_new_tokens=self.config.max_length,
+                        pad_token_id=self.tokenizer.eos_token_id,
+                        do_sample=False,
+                    )
+
+                generated_text = self.tokenizer.decode(
+                    outputs[0], skip_special_tokens=True
+                )
+                translation = generated_text[len(prompt) :].strip()
+
+                scores = self.evaluator.evaluate_translation(
+                    translation, example["target_text"], ["bleu", "chrf"]
+                )
+
+                total_bleu += scores["bleu"]
+                total_chrf += scores["chrf"]
+
+            performance = 0.6 * (total_bleu / len(query_examples)) + 0.4 * (
+                total_chrf / len(query_examples)
+            )
             results[task_type] = performance
             logger.info(f"Zero-shot performance for {task_type}: {performance:.3f}")
 
