@@ -29,7 +29,7 @@ class AblationStudyRunner:
         self.output_dir = Path(output_dir) if output_dir else paths.results_dir / "ablation"
         self.output_dir.mkdir(parents=True, exist_ok=True)
         
-    def generate_ablation_configs(self, ablation_type: str = "minimal") -> List[Dict]:
+    def generate_ablation_configs(self, ablation_type: str = "minimal", *, smoke: bool = False) -> List[Dict]:
         """Generate ablation configurations based on type
         
         Args:
@@ -55,6 +55,19 @@ class AblationStudyRunner:
                     "seed": 42,
                     "episodes_per_task": 3,
                 })
+            if smoke:
+                # Single tiny config for 1–2 minute smoke test
+                return [{
+                    "meta_lr": 0.0,
+                    "inner_steps": 0,
+                    "adapter_mode": "az_en",
+                    "support_size": 1,
+                    "query_size": 1,
+                    "meta_steps": 1,
+                    "bleu_weight": 0.6,
+                    "seed": 42,
+                    "episodes_per_task": 1,
+                }]
             return configs
             
         elif ablation_type == "extended":
@@ -170,7 +183,7 @@ class AblationStudyRunner:
             return False, "Timeout after 2 hours"
     
     def run_evaluation(
-        self, config_name: str, language_groups: List[str]
+        self, config_name: str, language_groups: List[str], config: Dict
     ) -> Tuple[bool, str]:
         """Run evaluation for a trained model"""
         logger.info(f"Evaluating: {config_name}")
@@ -180,6 +193,7 @@ class AblationStudyRunner:
             str(paths.base_dir / "src" / "evaluate_reptile.py"),
             "--model", self.model,
             "--adapter_mode", config["adapter_mode"],
+            "--inner_steps", str(config.get("inner_steps", 3)),
             "--output_dir", str(self.output_dir / config_name),
             "--language_groups", *language_groups,
         ]
@@ -208,12 +222,16 @@ class AblationStudyRunner:
         language_groups: List[str] = None,
         skip_training: bool = False,
         skip_evaluation: bool = False,
+        smoke: bool = False,
+        max_configs: int = None,
     ):
         """Run complete ablation study"""
         if language_groups is None:
             language_groups = ["az_tr_en", "be_uk_en"]
         
-        configs = self.generate_ablation_configs(ablation_type)
+        configs = self.generate_ablation_configs(ablation_type, smoke=smoke)
+        if max_configs is not None:
+            configs = configs[:max_configs]
         logger.info(f"Running {ablation_type} ablation study with {len(configs)} configurations")
         
         results = {
@@ -253,7 +271,7 @@ class AblationStudyRunner:
             # Evaluation
             if not skip_evaluation:
                 eval_success, eval_output = self.run_evaluation(
-                    config_name, language_groups
+                    config_name, language_groups, config
                 )
                 experiment_result["evaluation_success"] = eval_success
             
@@ -383,6 +401,17 @@ def main():
         action="store_true",
         help="Only aggregate existing results (no training/eval)",
     )
+    parser.add_argument(
+        "--smoke",
+        action="store_true",
+        help="Run a 1–2 minute smoke test (single tiny config)",
+    )
+    parser.add_argument(
+        "--max_configs",
+        type=int,
+        default=None,
+        help="Limit the number of configurations to run (for quick checks)",
+    )
     
     args = parser.parse_args()
     
@@ -402,6 +431,8 @@ def main():
             language_groups=args.language_groups,
             skip_training=args.skip_training,
             skip_evaluation=args.skip_evaluation,
+            smoke=args.smoke,
+            max_configs=args.max_configs,
         )
         
         # Aggregate results after completion

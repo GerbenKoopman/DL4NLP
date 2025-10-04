@@ -1,0 +1,25 @@
+{
+  "ablation_type": "minimal",
+  "model": "1b",
+  "language_groups": [
+    "az_tr_en"
+  ],
+  "experiments": [
+    {
+      "config_name": "metaLR0.00_inner0_support1_az_en_bleu0.60_seed42",
+      "config": {
+        "meta_lr": 0.0,
+        "inner_steps": 0,
+        "adapter_mode": "az_en",
+        "support_size": 1,
+        "query_size": 1,
+        "meta_steps": 1,
+        "bleu_weight": 0.6,
+        "seed": 42,
+        "episodes_per_task": 1
+      },
+      "training_success": true,
+      "evaluation_success": false
+    }
+  ]
+}

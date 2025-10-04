@@ -368,6 +368,12 @@ def main():
         help="Number of support examples for few-shot evaluation",
     )
     parser.add_argument(
+        "--inner_steps",
+        type=int,
+        default=5,
+        help="Inner adaptation steps during evaluation episodes (set 0 for smoke test)",
+    )
+    parser.add_argument(
         "--language_groups",
         nargs="+",
         default=["az_tr_en", "be_uk_en"],
@@ -413,7 +419,14 @@ def main():
         gemma_model=model_mapping[args.model],
         random_seed=args.seed,
         adapter_mode=args.adapter_mode,
+        inner_steps=args.inner_steps,
     )
+
+    # Determine adapter path (default to output_dir/adapters/<model>_<adapter_mode>)
+    model_name = model_mapping[args.model].split("/")[-1]
+    default_adapter_dir = Path(args.output_dir) / "adapters" / f"{model_name}_{args.adapter_mode}"
+    resolved_adapter_dir = args.adapter_dir or str(default_adapter_dir)
+    logger.info(f"Using adapter directory: {resolved_adapter_dir}")
 
     # Initialize evaluator
     evaluator = ReptileEvaluator(
@@ -423,7 +436,7 @@ def main():
         wandb_api_key=wandb_api_key,
         wandb_entity=wandb_entity,
         wandb_project=wandb_project,
-        adapter_path=args.adapter_dir,
+        adapter_path=resolved_adapter_dir,
     )
 
     try:

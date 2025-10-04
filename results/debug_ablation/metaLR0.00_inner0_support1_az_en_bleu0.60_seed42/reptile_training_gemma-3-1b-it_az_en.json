@@ -1,0 +1,60 @@
+{
+  "config": {
+    "meta_steps": 1,
+    "inner_steps": 0,
+    "support_size": 1,
+    "query_size": 1,
+    "model": "google/gemma-3-1b-it",
+    "base_langs": [
+      "az",
+      "be",
+      "en"
+    ],
+    "target_langs": [
+      "tr",
+      "uk"
+    ],
+    "adapter_mode": "az_en",
+    "meta_lr": 0.0,
+    "bleu_weight": 0.6,
+    "chrf_weight": 0.4,
+    "random_seed": 42,
+    "episodes_per_task": 1
+  },
+  "training_history": {
+    "az_en": [
+      7.900034854754167
+    ],
+    "en_az": [
+      0.03460322590407686
+    ],
+    "meta_average": [
+      3.9673190403291216
+    ],
+    "test_performance": [
+      NaN
+    ]
+  },
+  "final_performance": {
+    "az_en": {
+      "initial": 7.900034854754167,
+      "final": 7.900034854754167,
+      "improvement": 0.0
+    },
+    "en_az": {
+      "initial": 0.03460322590407686,
+      "final": 0.03460322590407686,
+      "improvement": 0.0
+    },
+    "meta_average": {
+      "initial": 3.9673190403291216,
+      "final": 3.9673190403291216,
+      "improvement": 0.0
+    },
+    "test_performance": {
+      "initial": NaN,
+      "final": NaN,
+      "improvement": 0.0
+    }
+  }
+}
