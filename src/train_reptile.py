@@ -258,7 +258,7 @@ def main():
         description="Train Reptile meta-learning for translation"
     )
     parser.add_argument(
-        "--model", choices=["270m", "1b"], default="270m", help="Model size to train"
+        "--model", choices=["270m", "1b"], default="1b", help="Model size to train"
     )
     parser.add_argument(
         "--adapter_mode",
