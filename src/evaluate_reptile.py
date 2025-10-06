@@ -34,6 +34,7 @@ class ReptileEvaluator:
         wandb_entity: Optional[str] = None,
         wandb_project: Optional[str] = None,
         adapter_path: Optional[str] = None,
+        fast_eval: bool = False,
     ):
         self.config = config
         self.meta_learner = ReptileMetaLearner(
@@ -46,6 +47,7 @@ class ReptileEvaluator:
         )
         self.language_groups = language_groups or []
         self.adapter_path = adapter_path
+        self.fast_eval = fast_eval
 
     def load_test_data(self) -> List[Dict]:
         """Load and prepare test data from specified language groups."""
@@ -112,9 +114,11 @@ class ReptileEvaluator:
         cleaner.process_all_splits()
         logger.info("Data processing completed")
 
-    def evaluate_comprehensive(self, output_dir: str = "results") -> Dict:
+    def evaluate_comprehensive(self, output_dir: str = "results", *, fast_eval: bool = False) -> Dict:
         """Run comprehensive evaluation (zero-shot + few-shot + transfer)"""
         logger.info("Starting comprehensive Reptile evaluation")
+
+        fast_eval = fast_eval or self.fast_eval
 
         # Load test data
         test_tasks = self.load_test_data()
@@ -138,19 +142,20 @@ class ReptileEvaluator:
         results["evaluations"]["zero_shot"] = zero_shot_results
 
         # 2. Few-shot evaluation on base languages (1-shot and 5-shot)
-        logger.info("Running few-shot evaluation on base languages...")
-        base_tasks = [
-            task
-            for task in test_tasks
-            if self.config.base_langs
-            and any(lang in task["task_type"] for lang in self.config.base_langs)
-        ]
+        if not fast_eval:
+            logger.info("Running few-shot evaluation on base languages...")
+            base_tasks = [
+                task
+                for task in test_tasks
+                if self.config.base_langs
+                and any(lang in task["task_type"] for lang in self.config.base_langs)
+            ]
 
-        few_shot_1 = self.meta_learner.evaluate_transfer(base_tasks, num_shots=1)
-        few_shot_5 = self.meta_learner.evaluate_transfer(base_tasks, num_shots=5)
+            few_shot_1 = self.meta_learner.evaluate_transfer(base_tasks, num_shots=1)
+            few_shot_5 = self.meta_learner.evaluate_transfer(base_tasks, num_shots=5)
 
-        results["evaluations"]["few_shot_1"] = few_shot_1
-        results["evaluations"]["few_shot_5"] = few_shot_5
+            results["evaluations"]["few_shot_1"] = few_shot_1
+            results["evaluations"]["few_shot_5"] = few_shot_5
 
         # 3. Transfer evaluation on target languages (Turkish, Ukrainian)
         logger.info("Running transfer evaluation on target languages...")
@@ -163,10 +168,13 @@ class ReptileEvaluator:
 
         if target_tasks:
             transfer_1 = self.meta_learner.evaluate_transfer(target_tasks, num_shots=1)
-            transfer_5 = self.meta_learner.evaluate_transfer(target_tasks, num_shots=5)
-
             results["evaluations"]["transfer_1"] = transfer_1
-            results["evaluations"]["transfer_5"] = transfer_5
+
+            if not fast_eval:
+                transfer_5 = self.meta_learner.evaluate_transfer(target_tasks, num_shots=5)
+                results["evaluations"]["transfer_5"] = transfer_5
+            else:
+                results["evaluations"]["transfer_5"] = {}
         else:
             logger.warning("No target language tasks found for transfer evaluation")
             results["evaluations"]["transfer_1"] = {}
@@ -396,6 +404,11 @@ def main():
         default=None,
         help="Directory containing trained adapter (defaults to output_dir/adapters/<model>_<adapter_mode>)",
     )
+    parser.add_argument(
+        "--fast_eval",
+        action="store_true",
+        help="Skip 5-shot evaluations to shorten runtime",
+    )
 
     args = parser.parse_args()
 
@@ -437,6 +450,7 @@ def main():
         wandb_entity=wandb_entity,
         wandb_project=wandb_project,
         adapter_path=resolved_adapter_dir,
+        fast_eval=args.fast_eval,
     )
 
     try:
@@ -455,7 +469,7 @@ def main():
                 )
         else:
             # Run standalone evaluation
-            results = evaluator.evaluate_comprehensive(args.output_dir)
+            results = evaluator.evaluate_comprehensive(args.output_dir, fast_eval=args.fast_eval)
             evaluator.print_evaluation_summary(results)
 
         logger.info("Evaluation completed successfully!")

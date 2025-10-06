@@ -28,8 +28,20 @@ class AblationStudyRunner:
         self.model = model
         self.output_dir = Path(output_dir) if output_dir else paths.results_dir / "ablation"
         self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.fast_mode = False
         
-    def generate_ablation_configs(self, ablation_type: str = "minimal", *, smoke: bool = False) -> List[Dict]:
+    def _apply_fast_mode_overrides(self, config: Dict) -> Dict:
+        """Return a copy of the config with fast-mode friendly overrides."""
+        fast_config = config.copy()
+        fast_config["meta_steps"] = min(fast_config.get("meta_steps", 50), 10)
+        fast_config["episodes_per_task"] = min(fast_config.get("episodes_per_task", 3), 1)
+        if fast_config.get("inner_steps", 0) > 0:
+            fast_config["inner_steps"] = min(fast_config["inner_steps"], 2)
+        fast_config["support_size"] = min(fast_config.get("support_size", 5), 3)
+        fast_config["query_size"] = min(fast_config.get("query_size", 3), 2)
+        return fast_config
+
+    def generate_ablation_configs(self, ablation_type: str = "minimal", *, smoke: bool = False, fast_mode: bool = False) -> List[Dict]:
         """Generate ablation configurations based on type
         
         Args:
@@ -68,6 +80,8 @@ class AblationStudyRunner:
                     "seed": 42,
                     "episodes_per_task": 1,
                 }]
+            if fast_mode:
+                configs = [self._apply_fast_mode_overrides(cfg) for cfg in configs]
             return configs
             
         elif ablation_type == "extended":
@@ -91,6 +105,8 @@ class AblationStudyRunner:
                     "seed": 42,
                     "episodes_per_task": 3,
                 })
+            if fast_mode:
+                configs = [self._apply_fast_mode_overrides(cfg) for cfg in configs]
             return configs
             
         elif ablation_type == "metric_only":
@@ -108,6 +124,8 @@ class AblationStudyRunner:
                     "seed": 42,
                     "episodes_per_task": 3,
                 })
+            if fast_mode:
+                configs = [self._apply_fast_mode_overrides(cfg) for cfg in configs]
             return configs
             
         elif ablation_type == "scaling":
@@ -124,6 +142,8 @@ class AblationStudyRunner:
                 "seed": 42,
                 "episodes_per_task": 3,
             })
+            if fast_mode:
+                configs = [self._apply_fast_mode_overrides(cfg) for cfg in configs]
             return configs
             
         else:
@@ -197,6 +217,8 @@ class AblationStudyRunner:
             "--output_dir", str(self.output_dir / config_name),
             "--language_groups", *language_groups,
         ]
+        if self.fast_mode:
+            cmd.append("--fast_eval")
         
         try:
             result = subprocess.run(
@@ -224,12 +246,14 @@ class AblationStudyRunner:
         skip_evaluation: bool = False,
         smoke: bool = False,
         max_configs: int = None,
+        fast_mode: bool = False,
     ):
         """Run complete ablation study"""
         if language_groups is None:
             language_groups = ["az_tr_en", "be_uk_en"]
         
-        configs = self.generate_ablation_configs(ablation_type, smoke=smoke)
+        self.fast_mode = fast_mode
+        configs = self.generate_ablation_configs(ablation_type, smoke=smoke, fast_mode=fast_mode)
         if max_configs is not None:
             configs = configs[:max_configs]
         logger.info(f"Running {ablation_type} ablation study with {len(configs)} configurations")
@@ -412,6 +436,11 @@ def main():
         default=None,
         help="Limit the number of configurations to run (for quick checks)",
     )
+    parser.add_argument(
+        "--fast_mode",
+        action="store_true",
+        help="Enable fast-mode overrides (shorter meta-steps, fewer episodes, smaller support/query)",
+    )
     
     args = parser.parse_args()
     
@@ -433,6 +462,7 @@ def main():
             skip_evaluation=args.skip_evaluation,
             smoke=args.smoke,
             max_configs=args.max_configs,
+            fast_mode=args.fast_mode,
         )
         
         # Aggregate results after completion
