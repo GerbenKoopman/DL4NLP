@@ -14,5 +14,5 @@ module load Anaconda3/2024.06-1
 
 cd $HOME/dl4nlp
 
-conda env create -f environment.yml
-# conda env update --file environment.yml --prune
+mamba env create -f environment.yml
+# mamba env update --file environment.yml --prune
