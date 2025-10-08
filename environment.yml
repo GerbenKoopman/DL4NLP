@@ -26,7 +26,6 @@ dependencies:
     - scipy==1.16.2
     - sentencepiece==0.2.1
     - torch==2.8.0
-    - pytorch-cuda
     - tokenizers==0.22.0
     - tqdm==4.67.1
     - transformers==4.56.1
@@ -37,4 +36,4 @@ dependencies:
     - trl>=0.21.0
     - peft>=0.14.0
     - wandb==0.22.0
-    - flash-attn
+    # - flash-attn
