@@ -20,4 +20,4 @@ conda update --file environment.yml --prune
 
 source activate dl4nlp
 pip install flash-attn
-conda deactivate
+source deactivate
