@@ -1,0 +1,147 @@
+============================================================================================== 
+Warning! Mixing Conda and module environments may lead to corruption of the
+user environment. 
+We do not recommend users mixing those two environments unless absolutely
+necessary. Note that 
+SURF does not provide any support for Conda environment.
+For more information, please refer to our software policy page:
+https://servicedesk.surf.nl/wiki/display/WIKI/Software+policy+Snellius#SoftwarepolicySnellius-UseofAnacondaandMinicondaenvironmentsonSnellius 
+
+Remember that many packages have already been installed on the system and can
+be loaded using 
+the 'module load <package__name>' command. If you are uncertain if a package is
+already available 
+on the system, please use 'module avail' or 'module spider' to search for it.
+============================================================================================== 
+/sw/arch/RHEL9/EB_production/2025/software/Anaconda3/2025.06-1/lib/python3.13/argparse.py:1258: FutureWarning: `remote_definition` is deprecated and will be removed in 25.9. Use `conda env create --file=URL` instead.
+  subnamespace, arg_strings = subparser.parse_known_args(arg_strings, None)
+2 channel Terms of Service accepted
+Channels:
+ - defaults
+ - conda-forge
+ - pytorch
+ - nvidia
+Platform: linux-64
+Collecting package metadata (repodata.json): - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / done
+Solving environment: \ done
+
+
+==> WARNING: A newer version of conda exists. <==
+    current version: 25.5.1
+    latest version: 25.9.0
+
+Please update conda by running
+
+    $ conda update -n base -c defaults conda
+
+
+Installing pip dependencies: / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ Pip subprocess error:
+  error: subprocess-exited-with-error
+  
+  × python setup.py egg_info did not run successfully.
+  │ exit code: 1
+  ╰─> [39 lines of output]
+      /gpfs/scratch1/nodespecific/gcn49/scur1887.15195957/pip-install-3lf2fdup/flash-attn_d413cc34ea1a4d0a8f1e6ad8d4837c50/setup.py:106: UserWarning: flash_attn was requested, but nvcc was not found.  Are you sure your environment has nvcc available?  If you're installing within a container from https://hub.docker.com/r/pytorch/pytorch, only images whose names contain 'devel' will provide nvcc.
+        warnings.warn(
+      Traceback (most recent call last):
+        File "<string>", line 2, in <module>
+          exec(compile('''
+          ~~~~^^^^^^^^^^^^
+          # This is <pip-setuptools-caller> -- a caller that pip uses to run setup.py
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+          ...<32 lines>...
+          exec(compile(setup_py_code, filename, "exec"))
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+          ''' % ('/gpfs/scratch1/nodespecific/gcn49/scur1887.15195957/pip-install-3lf2fdup/flash-attn_d413cc34ea1a4d0a8f1e6ad8d4837c50/setup.py',), "<pip-setuptools-caller>", "exec"))
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        File "<pip-setuptools-caller>", line 35, in <module>
+        File "/gpfs/scratch1/nodespecific/gcn49/scur1887.15195957/pip-install-3lf2fdup/flash-attn_d413cc34ea1a4d0a8f1e6ad8d4837c50/setup.py", line 227, in <module>
+          CUDAExtension(
+          ~~~~~~~~~~~~~^
+              name="flash_attn_2_cuda",
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+          ...<83 lines>...
+              ],
+              ^^
+          )
+          ^
+        File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/torch/utils/cpp_extension.py", line 1337, in CUDAExtension
+          library_dirs += library_paths(device_type="cuda")
+                          ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+        File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/torch/utils/cpp_extension.py", line 1548, in library_paths
+          if (not os.path.exists(_join_cuda_home(lib_dir)) and
+                                 ~~~~~~~~~~~~~~~^^^^^^^^^
+        File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/torch/utils/cpp_extension.py", line 2982, in _join_cuda_home
+          raise OSError('CUDA_HOME environment variable is not set. '
+                        'Please set it to your CUDA install root.')
+      OSError: CUDA_HOME environment variable is not set. Please set it to your CUDA install root.
+      
+      
+      torch.__version__  = 2.8.0+cu128
+      
+      
+      [end of output]
+  
+  note: This error originates from a subprocess, and is likely not a problem with pip.
+error: metadata-generation-failed
+
+× Encountered error while generating package metadata.
+╰─> See above for output.
+
+note: This is an issue with the package mentioned above, not pip.
+hint: See above for details.
+
+Ran pip subprocess with arguments:
+['/home/scur1887/.conda/envs/dl4nlp/bin/python', '-m', 'pip', 'install', '-U', '-r', '/gpfs/home6/scur1887/dl4nlp/condaenv.qnf7z2ko.requirements.txt', '--exists-action=b']
+Pip subprocess output:
+Requirement already satisfied: accelerate==1.10.1 in /home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages (from -r /gpfs/home6/scur1887/dl4nlp/condaenv.qnf7z2ko.requirements.txt (line 1)) (1.10.1)
+Requirement already satisfied: beautifulsoup4==4.13.5 in /home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages (from -r /gpfs/home6/scur1887/dl4nlp/condaenv.qnf7z2ko.requirements.txt (line 2)) (4.13.5)
+Requirement already satisfied: huggingface-hub==0.34.4 in /home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages (from -r /gpfs/home6/scur1887/dl4nlp/condaenv.qnf7z2ko.requirements.txt (line 3)) (0.34.4)
+Requirement already satisfied: ipykernel==6.30.1 in /home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages (from -r /gpfs/home6/scur1887/dl4nlp/condaenv.qnf7z2ko.requirements.txt (line 4)) (6.30.1)
+Requirement already satisfied: ipython==9.5.0 in /home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages (from -r /gpfs/home6/scur1887/dl4nlp/condaenv.qnf7z2ko.requirements.txt (line 5)) (9.5.0)
+Requirement already satisfied: ipywidgets==8.1.7 in /home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages (from -r /gpfs/home6/scur1887/dl4nlp/condaenv.qnf7z2ko.requirements.txt (line 6)) (8.1.7)
+Requirement already satisfied: jupyter==1.1.1 in /home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages (from -r /gpfs/home6/scur1887/dl4nlp/condaenv.qnf7z2ko.requirements.txt (line 7)) (1.1.1)
+Requirement already satisfied: jupyterlab==4.4.7 in /home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages (from -r /gpfs/home6/scur1887/dl4nlp/condaenv.qnf7z2ko.requirements.txt (line 8)) (4.4.7)
+Requirement already satisfied: matplotlib==3.10.6 in /home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages (from -r /gpfs/home6/scur1887/dl4nlp/condaenv.qnf7z2ko.requirements.txt (line 9)) (3.10.6)
+Requirement already satisfied: numpy==2.3.3 in /home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages (from -r /gpfs/home6/scur1887/dl4nlp/condaenv.qnf7z2ko.requirements.txt (line 10)) (2.3.3)
+Requirement already satisfied: pandas==2.3.2 in /home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages (from -r /gpfs/home6/scur1887/dl4nlp/condaenv.qnf7z2ko.requirements.txt (line 11)) (2.3.2)
+Requirement already satisfied: pillow==11.3.0 in /home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages (from -r /gpfs/home6/scur1887/dl4nlp/condaenv.qnf7z2ko.requirements.txt (line 12)) (11.3.0)
+Requirement already satisfied: python-dotenv==1.1.1 in /home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages (from -r /gpfs/home6/scur1887/dl4nlp/condaenv.qnf7z2ko.requirements.txt (line 13)) (1.1.1)
+Requirement already satisfied: requests==2.32.5 in /home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages (from -r /gpfs/home6/scur1887/dl4nlp/condaenv.qnf7z2ko.requirements.txt (line 14)) (2.32.5)
+Requirement already satisfied: scikit-learn==1.7.2 in /home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages (from -r /gpfs/home6/scur1887/dl4nlp/condaenv.qnf7z2ko.requirements.txt (line 15)) (1.7.2)
+Requirement already satisfied: scipy==1.16.2 in /home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages (from -r /gpfs/home6/scur1887/dl4nlp/condaenv.qnf7z2ko.requirements.txt (line 16)) (1.16.2)
+Requirement already satisfied: sentencepiece==0.2.1 in /home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages (from -r /gpfs/home6/scur1887/dl4nlp/condaenv.qnf7z2ko.requirements.txt (line 17)) (0.2.1)
+Requirement already satisfied: torch==2.8.0 in /home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages (from -r /gpfs/home6/scur1887/dl4nlp/condaenv.qnf7z2ko.requirements.txt (line 18)) (2.8.0)
+Requirement already satisfied: tokenizers==0.22.0 in /home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages (from -r /gpfs/home6/scur1887/dl4nlp/condaenv.qnf7z2ko.requirements.txt (line 19)) (0.22.0)
+Requirement already satisfied: tqdm==4.67.1 in /home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages (from -r /gpfs/home6/scur1887/dl4nlp/condaenv.qnf7z2ko.requirements.txt (line 20)) (4.67.1)
+Requirement already satisfied: transformers==4.56.1 in /home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages (from -r /gpfs/home6/scur1887/dl4nlp/condaenv.qnf7z2ko.requirements.txt (line 21)) (4.56.1)
+Requirement already satisfied: sacrebleu in /home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages (from -r /gpfs/home6/scur1887/dl4nlp/condaenv.qnf7z2ko.requirements.txt (line 22)) (2.5.1)
+Requirement already satisfied: autoflake in /home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages (from -r /gpfs/home6/scur1887/dl4nlp/condaenv.qnf7z2ko.requirements.txt (line 23)) (2.3.1)
+Requirement already satisfied: evaluate>=0.4.3 in /home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages (from -r /gpfs/home6/scur1887/dl4nlp/condaenv.qnf7z2ko.requirements.txt (line 24)) (0.4.6)
+Requirement already satisfied: bitsandbytes>=0.45.3 in /home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages (from -r /gpfs/home6/scur1887/dl4nlp/condaenv.qnf7z2ko.requirements.txt (line 25)) (0.48.1)
+Requirement already satisfied: trl>=0.21.0 in /home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages (from -r /gpfs/home6/scur1887/dl4nlp/condaenv.qnf7z2ko.requirements.txt (line 26)) (0.23.1)
+Requirement already satisfied: peft>=0.14.0 in /home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages (from -r /gpfs/home6/scur1887/dl4nlp/condaenv.qnf7z2ko.requirements.txt (line 27)) (0.17.1)
+Requirement already satisfied: wandb==0.22.0 in /home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages (from -r /gpfs/home6/scur1887/dl4nlp/condaenv.qnf7z2ko.requirements.txt (line 28)) (0.22.0)
+Collecting flash-attn (from -r /gpfs/home6/scur1887/dl4nlp/condaenv.qnf7z2ko.requirements.txt (line 29))
+  Using cached flash_attn-2.8.3.tar.gz (8.4 MB)
+  Preparing metadata (setup.py): started
+  Preparing metadata (setup.py): finished with status 'error'
+
+failed
+
+CondaEnvException: Pip failed
+
+
+JOB STATISTICS
+==============
+Job ID: 15195957
+Cluster: snellius
+User/Group: scur1887/scur1887
+State: FAILED (exit code 1)
+Nodes: 1
+Cores per node: 18
+CPU Utilized: 00:00:25
+CPU Efficiency: 1.29% of 00:32:24 core-walltime
+Job Wall-clock time: 00:01:48
+Memory Utilized: 391.59 MB
+Memory Efficiency: 0.32% of 120.00 GB (120.00 GB/node)

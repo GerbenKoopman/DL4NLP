@@ -1,0 +1,566 @@
+============================================================================================== 
+Warning! Mixing Conda and module environments may lead to corruption of the
+user environment. 
+We do not recommend users mixing those two environments unless absolutely
+necessary. Note that 
+SURF does not provide any support for Conda environment.
+For more information, please refer to our software policy page:
+https://servicedesk.surf.nl/wiki/display/WIKI/Software+policy+Snellius#SoftwarepolicySnellius-UseofAnacondaandMinicondaenvironmentsonSnellius 
+
+Remember that many packages have already been installed on the system and can
+be loaded using 
+the 'module load <package__name>' command. If you are uncertain if a package is
+already available 
+on the system, please use 'module avail' or 'module spider' to search for it.
+============================================================================================== 
+INFO:gemma:Using Hugging Face token for authentication.
+INFO:gemma:Loading google/gemma-3-1b-it...
+INFO:accelerate.utils.modeling:We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+INFO:gemma:Gemma model loaded successfully!
+INFO:__main__:Starting LoRA fine-tuning.
+INFO:__main__:Loading train data from /gpfs/home6/scur1887/dl4nlp/datasets/az_tr_en_train.pkl
+trainable params: 3,261,440 || all params: 1,003,147,392 || trainable%: 0.3251
+Map:   0%|          | 0/33510 [00:00<?, ? examples/s]Map:   3%|▎         | 1000/33510 [00:00<00:04, 7841.34 examples/s]Map:   6%|▌         | 2000/33510 [00:00<00:03, 8176.42 examples/s]Map:   9%|▉         | 3000/33510 [00:00<00:03, 8262.84 examples/s]Map:  12%|█▏        | 4000/33510 [00:00<00:03, 8372.29 examples/s]Map:  15%|█▍        | 5000/33510 [00:00<00:03, 8171.62 examples/s]Map:  18%|█▊        | 6000/33510 [00:00<00:03, 8270.55 examples/s]Map:  21%|██        | 7000/33510 [00:00<00:03, 8384.35 examples/s]Map:  24%|██▍       | 8000/33510 [00:00<00:03, 8414.25 examples/s]Map:  27%|██▋       | 9000/33510 [00:01<00:02, 8399.31 examples/s]Map:  30%|██▉       | 10000/33510 [00:01<00:02, 8189.73 examples/s]Map:  33%|███▎      | 11000/33510 [00:01<00:02, 8199.27 examples/s]Map:  36%|███▌      | 12000/33510 [00:01<00:02, 8282.71 examples/s]Map:  39%|███▉      | 13000/33510 [00:01<00:02, 8346.22 examples/s]Map:  42%|████▏     | 14000/33510 [00:01<00:02, 8357.95 examples/s]Map:  45%|████▍     | 15000/33510 [00:01<00:02, 8307.07 examples/s]Map:  48%|████▊     | 16000/33510 [00:01<00:02, 8360.99 examples/s]Map:  51%|█████     | 17000/33510 [00:02<00:01, 8384.10 examples/s]Map:  54%|█████▎    | 18000/33510 [00:02<00:01, 8374.62 examples/s]Map:  57%|█████▋    | 19000/33510 [00:02<00:01, 8054.27 examples/s]Map:  60%|█████▉    | 20000/33510 [00:02<00:01, 8107.79 examples/s]Map:  63%|██████▎   | 21000/33510 [00:02<00:01, 8205.49 examples/s]Map:  66%|██████▌   | 22000/33510 [00:02<00:01, 8274.22 examples/s]Map:  69%|██████▊   | 23000/33510 [00:02<00:01, 8331.97 examples/s]Map:  72%|███████▏  | 24000/33510 [00:02<00:01, 8430.33 examples/s]Map:  75%|███████▍  | 25000/33510 [00:03<00:01, 8477.17 examples/s]Map:  78%|███████▊  | 26000/33510 [00:03<00:00, 8507.84 examples/s]Map:  81%|████████  | 27000/33510 [00:03<00:00, 8463.18 examples/s]Map:  84%|████████▎ | 28000/33510 [00:03<00:00, 8435.31 examples/s]Map:  87%|████████▋ | 29000/33510 [00:03<00:00, 8431.94 examples/s]Map:  90%|████████▉ | 30000/33510 [00:03<00:00, 8436.37 examples/s]Map:  93%|█████████▎| 31000/33510 [00:03<00:00, 8433.21 examples/s]Map:  95%|█████████▌| 32000/33510 [00:03<00:00, 8433.00 examples/s]Map:  98%|█████████▊| 33000/33510 [00:03<00:00, 8406.58 examples/s]Map: 100%|██████████| 33510/33510 [00:04<00:00, 8323.81 examples/s]
+INFO:__main__:Loading dev data from /gpfs/home6/scur1887/dl4nlp/datasets/az_tr_en_dev.pkl
+Map:   0%|          | 0/2940 [00:00<?, ? examples/s]Map:  34%|███▍      | 1000/2940 [00:00<00:00, 8423.08 examples/s]Map:  68%|██████▊   | 2000/2940 [00:00<00:00, 8423.97 examples/s]Map: 100%|██████████| 2940/2940 [00:00<00:00, 8145.63 examples/s]Map: 100%|██████████| 2940/2940 [00:00<00:00, 8147.32 examples/s]
+/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/pydantic/_internal/_generate_schema.py:2249: UnsupportedFieldAttributeWarning: The 'repr' attribute with value False was provided to the `Field()` function, which has no effect in the context it was used. 'repr' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+  warnings.warn(
+/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/pydantic/_internal/_generate_schema.py:2249: UnsupportedFieldAttributeWarning: The 'frozen' attribute with value True was provided to the `Field()` function, which has no effect in the context it was used. 'frozen' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+  warnings.warn(
+Received unrecognized `WANDB_LOG_MODEL` setting value=epoch; so disabling `WANDB_LOG_MODEL`
+INFO:__main__:Training...
+wandb: Currently logged in as: gerbennkoopman (gerbennkoopman-university-of-amsterdam) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: creating run
+wandb: Tracking run with wandb version 0.22.0
+wandb: Run data is saved locally in /gpfs/home6/scur1887/dl4nlp/src/wandb/run-20251008_135350-gxpcrx9m
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run smart-moon-95
+wandb: ⭐️ View project at https://wandb.ai/gerbennkoopman-university-of-amsterdam/reptile-meta-learning
+wandb: 🚀 View run at https://wandb.ai/gerbennkoopman-university-of-amsterdam/reptile-meta-learning/runs/gxpcrx9m
+  0%|          | 0/131 [00:00<?, ?it/s]ERROR:__main__:Training failed: CUDA out of memory. Tried to allocate 216.00 MiB. GPU 0 has a total capacity of 39.49 GiB of which 213.25 MiB is free. Including non-PyTorch memory, this process has 39.28 GiB memory in use. Of the allocated memory 37.77 GiB is allocated by PyTorch, and 1.01 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+Traceback (most recent call last):
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 305, in main
+    finetuner.train(
+    ~~~~~~~~~~~~~~~^
+        output_dir=str(output_dir),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        gradient_accumulation_steps=args.gradient_accumulation_steps,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 227, in train
+    trainer.train()
+    ~~~~~~~~~~~~~^^
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer.py", line 2328, in train
+    return inner_training_loop(
+        args=args,
+    ...<2 lines>...
+        ignore_keys_for_eval=ignore_keys_for_eval,
+    )
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer.py", line 2672, in _inner_training_loop
+    tr_loss_step = self.training_step(model, inputs, num_items_in_batch)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer.py", line 4009, in training_step
+    loss = self.compute_loss(model, inputs, num_items_in_batch=num_items_in_batch)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer.py", line 4099, in compute_loss
+    outputs = model(**inputs)
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/accelerate/utils/operations.py", line 818, in forward
+    return model_forward(*args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/accelerate/utils/operations.py", line 806, in __call__
+    return convert_to_fp32(self.model_forward(*args, **kwargs))
+                           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/amp/autocast_mode.py", line 44, in decorate_autocast
+    return func(*args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/peft/peft_model.py", line 1850, in forward
+    return self.base_model(
+           ~~~~~~~~~~~~~~~^
+        input_ids=input_ids,
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/peft/tuners/tuners_utils.py", line 222, in forward
+    return self.model.forward(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/utils/generic.py", line 940, in wrapper
+    output = func(self, *args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/models/gemma3/modeling_gemma3.py", line 648, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+                                       ~~~~~~~~~~^
+        input_ids=input_ids,
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<8 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/utils/generic.py", line 1064, in wrapper
+    outputs = func(self, *args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/models/gemma3/modeling_gemma3.py", line 555, in forward
+    layer_outputs = decoder_layer(
+        hidden_states,
+    ...<8 lines>...
+        **kwargs,
+    )
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/modeling_layers.py", line 94, in __call__
+    return super().__call__(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/utils/deprecation.py", line 172, in wrapped_func
+    return func(*args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/models/gemma3/modeling_gemma3.py", line 405, in forward
+    hidden_states = self.mlp(hidden_states)
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/models/gemma3/modeling_gemma3.py", line 129, in forward
+    down_proj = self.down_proj(self.act_fn(self.gate_proj(x)) * self.up_proj(x))
+                                                                ~~~~~~~~~~~~^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/peft/tuners/lora/layer.py", line 771, in forward
+    result = result + lora_B(lora_A(dropout(x))) * scaling
+                      ~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/linear.py", line 125, in forward
+    return F.linear(input, self.weight, self.bias)
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 216.00 MiB. GPU 0 has a total capacity of 39.49 GiB of which 213.25 MiB is free. Including non-PyTorch memory, this process has 39.28 GiB memory in use. Of the allocated memory 37.77 GiB is allocated by PyTorch, and 1.01 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+Traceback (most recent call last):
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 320, in <module>
+    main()
+    ~~~~^^
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 305, in main
+    finetuner.train(
+    ~~~~~~~~~~~~~~~^
+        output_dir=str(output_dir),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        gradient_accumulation_steps=args.gradient_accumulation_steps,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 227, in train
+    trainer.train()
+    ~~~~~~~~~~~~~^^
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer.py", line 2328, in train
+    return inner_training_loop(
+        args=args,
+    ...<2 lines>...
+        ignore_keys_for_eval=ignore_keys_for_eval,
+    )
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer.py", line 2672, in _inner_training_loop
+    tr_loss_step = self.training_step(model, inputs, num_items_in_batch)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer.py", line 4009, in training_step
+    loss = self.compute_loss(model, inputs, num_items_in_batch=num_items_in_batch)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer.py", line 4099, in compute_loss
+    outputs = model(**inputs)
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/accelerate/utils/operations.py", line 818, in forward
+    return model_forward(*args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/accelerate/utils/operations.py", line 806, in __call__
+    return convert_to_fp32(self.model_forward(*args, **kwargs))
+                           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/amp/autocast_mode.py", line 44, in decorate_autocast
+    return func(*args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/peft/peft_model.py", line 1850, in forward
+    return self.base_model(
+           ~~~~~~~~~~~~~~~^
+        input_ids=input_ids,
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/peft/tuners/tuners_utils.py", line 222, in forward
+    return self.model.forward(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/utils/generic.py", line 940, in wrapper
+    output = func(self, *args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/models/gemma3/modeling_gemma3.py", line 648, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+                                       ~~~~~~~~~~^
+        input_ids=input_ids,
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<8 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/utils/generic.py", line 1064, in wrapper
+    outputs = func(self, *args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/models/gemma3/modeling_gemma3.py", line 555, in forward
+    layer_outputs = decoder_layer(
+        hidden_states,
+    ...<8 lines>...
+        **kwargs,
+    )
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/modeling_layers.py", line 94, in __call__
+    return super().__call__(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/utils/deprecation.py", line 172, in wrapped_func
+    return func(*args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/models/gemma3/modeling_gemma3.py", line 405, in forward
+    hidden_states = self.mlp(hidden_states)
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/models/gemma3/modeling_gemma3.py", line 129, in forward
+    down_proj = self.down_proj(self.act_fn(self.gate_proj(x)) * self.up_proj(x))
+                                                                ~~~~~~~~~~~~^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/peft/tuners/lora/layer.py", line 771, in forward
+    result = result + lora_B(lora_A(dropout(x))) * scaling
+                      ~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/linear.py", line 125, in forward
+    return F.linear(input, self.weight, self.bias)
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 216.00 MiB. GPU 0 has a total capacity of 39.49 GiB of which 213.25 MiB is free. Including non-PyTorch memory, this process has 39.28 GiB memory in use. Of the allocated memory 37.77 GiB is allocated by PyTorch, and 1.01 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+[1;34mwandb[0m: 
+[1;34mwandb[0m: 🚀 View run [33msmart-moon-95[0m at: [34mhttps://wandb.ai/gerbennkoopman-university-of-amsterdam/reptile-meta-learning/runs/gxpcrx9m[0m
+[1;34mwandb[0m: Find logs at: [1;35m../../../../gpfs/home6/scur1887/dl4nlp/src/wandb/run-20251008_135350-gxpcrx9m/logs[0m
+srun: error: gcn70: task 0: Exited with exit code 1
+srun: Terminating StepId=15197026.0
+INFO:gemma:Using Hugging Face token for authentication.
+INFO:gemma:Loading google/gemma-3-1b-it...
+INFO:accelerate.utils.modeling:We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+INFO:gemma:Gemma model loaded successfully!
+INFO:__main__:Starting LoRA fine-tuning.
+INFO:__main__:Loading train data from /gpfs/home6/scur1887/dl4nlp/datasets/be_uk_en_train.pkl
+trainable params: 3,261,440 || all params: 1,003,147,392 || trainable%: 0.3251
+Map:   0%|          | 0/19518 [00:00<?, ? examples/s]Map:   5%|▌         | 1000/19518 [00:00<00:02, 7817.73 examples/s]Map:  10%|█         | 2000/19518 [00:00<00:02, 8036.39 examples/s]Map:  15%|█▌        | 3000/19518 [00:00<00:02, 8196.37 examples/s]Map:  20%|██        | 4000/19518 [00:00<00:01, 8283.26 examples/s]Map:  26%|██▌       | 5000/19518 [00:00<00:01, 8265.27 examples/s]Map:  31%|███       | 6000/19518 [00:00<00:01, 8313.07 examples/s]Map:  36%|███▌      | 7000/19518 [00:00<00:01, 8337.16 examples/s]Map:  41%|████      | 8000/19518 [00:00<00:01, 8292.80 examples/s]Map:  46%|████▌     | 9000/19518 [00:01<00:01, 8329.63 examples/s]Map:  51%|█████     | 10000/19518 [00:01<00:01, 8103.98 examples/s]Map:  56%|█████▋    | 11000/19518 [00:01<00:01, 8163.57 examples/s]Map:  61%|██████▏   | 12000/19518 [00:01<00:00, 8229.89 examples/s]Map:  67%|██████▋   | 13000/19518 [00:01<00:00, 8282.49 examples/s]Map:  72%|███████▏  | 14000/19518 [00:01<00:00, 8260.07 examples/s]Map:  77%|███████▋  | 15000/19518 [00:01<00:00, 8304.86 examples/s]Map:  82%|████████▏ | 16000/19518 [00:01<00:00, 8341.18 examples/s]Map:  87%|████████▋ | 17000/19518 [00:02<00:00, 8358.45 examples/s]Map:  92%|█████████▏| 18000/19518 [00:02<00:00, 8348.41 examples/s]Map:  97%|█████████▋| 19000/19518 [00:02<00:00, 7981.77 examples/s]Map: 100%|██████████| 19518/19518 [00:02<00:00, 8182.45 examples/s]
+INFO:__main__:Loading dev data from /gpfs/home6/scur1887/dl4nlp/datasets/be_uk_en_dev.pkl
+Map:   0%|          | 0/1482 [00:00<?, ? examples/s]Map:  67%|██████▋   | 1000/1482 [00:00<00:00, 8302.07 examples/s]Map: 100%|██████████| 1482/1482 [00:00<00:00, 8099.23 examples/s]
+/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/pydantic/_internal/_generate_schema.py:2249: UnsupportedFieldAttributeWarning: The 'repr' attribute with value False was provided to the `Field()` function, which has no effect in the context it was used. 'repr' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+  warnings.warn(
+/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/pydantic/_internal/_generate_schema.py:2249: UnsupportedFieldAttributeWarning: The 'frozen' attribute with value True was provided to the `Field()` function, which has no effect in the context it was used. 'frozen' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+  warnings.warn(
+Received unrecognized `WANDB_LOG_MODEL` setting value=epoch; so disabling `WANDB_LOG_MODEL`
+INFO:__main__:Training...
+wandb: Currently logged in as: gerbennkoopman (gerbennkoopman-university-of-amsterdam) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: Tracking run with wandb version 0.22.0
+wandb: Run data is saved locally in /gpfs/home6/scur1887/dl4nlp/src/wandb/run-20251008_135424-0ir5pynf
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run iconic-dream-96
+wandb: ⭐️ View project at https://wandb.ai/gerbennkoopman-university-of-amsterdam/reptile-meta-learning
+wandb: 🚀 View run at https://wandb.ai/gerbennkoopman-university-of-amsterdam/reptile-meta-learning/runs/0ir5pynf
+  0%|          | 0/77 [00:00<?, ?it/s]ERROR:__main__:Training failed: CUDA out of memory. Tried to allocate 216.00 MiB. GPU 0 has a total capacity of 39.49 GiB of which 213.25 MiB is free. Including non-PyTorch memory, this process has 39.28 GiB memory in use. Of the allocated memory 37.77 GiB is allocated by PyTorch, and 1.01 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+Traceback (most recent call last):
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 305, in main
+    finetuner.train(
+    ~~~~~~~~~~~~~~~^
+        output_dir=str(output_dir),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        gradient_accumulation_steps=args.gradient_accumulation_steps,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 227, in train
+    trainer.train()
+    ~~~~~~~~~~~~~^^
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer.py", line 2328, in train
+    return inner_training_loop(
+        args=args,
+    ...<2 lines>...
+        ignore_keys_for_eval=ignore_keys_for_eval,
+    )
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer.py", line 2672, in _inner_training_loop
+    tr_loss_step = self.training_step(model, inputs, num_items_in_batch)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer.py", line 4009, in training_step
+    loss = self.compute_loss(model, inputs, num_items_in_batch=num_items_in_batch)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer.py", line 4099, in compute_loss
+    outputs = model(**inputs)
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/accelerate/utils/operations.py", line 818, in forward
+    return model_forward(*args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/accelerate/utils/operations.py", line 806, in __call__
+    return convert_to_fp32(self.model_forward(*args, **kwargs))
+                           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/amp/autocast_mode.py", line 44, in decorate_autocast
+    return func(*args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/peft/peft_model.py", line 1850, in forward
+    return self.base_model(
+           ~~~~~~~~~~~~~~~^
+        input_ids=input_ids,
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/peft/tuners/tuners_utils.py", line 222, in forward
+    return self.model.forward(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/utils/generic.py", line 940, in wrapper
+    output = func(self, *args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/models/gemma3/modeling_gemma3.py", line 648, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+                                       ~~~~~~~~~~^
+        input_ids=input_ids,
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<8 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/utils/generic.py", line 1064, in wrapper
+    outputs = func(self, *args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/models/gemma3/modeling_gemma3.py", line 555, in forward
+    layer_outputs = decoder_layer(
+        hidden_states,
+    ...<8 lines>...
+        **kwargs,
+    )
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/modeling_layers.py", line 94, in __call__
+    return super().__call__(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/utils/deprecation.py", line 172, in wrapped_func
+    return func(*args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/models/gemma3/modeling_gemma3.py", line 405, in forward
+    hidden_states = self.mlp(hidden_states)
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/models/gemma3/modeling_gemma3.py", line 129, in forward
+    down_proj = self.down_proj(self.act_fn(self.gate_proj(x)) * self.up_proj(x))
+                                                                ~~~~~~~~~~~~^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/peft/tuners/lora/layer.py", line 771, in forward
+    result = result + lora_B(lora_A(dropout(x))) * scaling
+                      ~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/linear.py", line 125, in forward
+    return F.linear(input, self.weight, self.bias)
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 216.00 MiB. GPU 0 has a total capacity of 39.49 GiB of which 213.25 MiB is free. Including non-PyTorch memory, this process has 39.28 GiB memory in use. Of the allocated memory 37.77 GiB is allocated by PyTorch, and 1.01 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+Traceback (most recent call last):
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 320, in <module>
+    main()
+    ~~~~^^
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 305, in main
+    finetuner.train(
+    ~~~~~~~~~~~~~~~^
+        output_dir=str(output_dir),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        gradient_accumulation_steps=args.gradient_accumulation_steps,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 227, in train
+    trainer.train()
+    ~~~~~~~~~~~~~^^
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer.py", line 2328, in train
+    return inner_training_loop(
+        args=args,
+    ...<2 lines>...
+        ignore_keys_for_eval=ignore_keys_for_eval,
+    )
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer.py", line 2672, in _inner_training_loop
+    tr_loss_step = self.training_step(model, inputs, num_items_in_batch)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer.py", line 4009, in training_step
+    loss = self.compute_loss(model, inputs, num_items_in_batch=num_items_in_batch)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer.py", line 4099, in compute_loss
+    outputs = model(**inputs)
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/accelerate/utils/operations.py", line 818, in forward
+    return model_forward(*args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/accelerate/utils/operations.py", line 806, in __call__
+    return convert_to_fp32(self.model_forward(*args, **kwargs))
+                           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/amp/autocast_mode.py", line 44, in decorate_autocast
+    return func(*args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/peft/peft_model.py", line 1850, in forward
+    return self.base_model(
+           ~~~~~~~~~~~~~~~^
+        input_ids=input_ids,
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/peft/tuners/tuners_utils.py", line 222, in forward
+    return self.model.forward(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/utils/generic.py", line 940, in wrapper
+    output = func(self, *args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/models/gemma3/modeling_gemma3.py", line 648, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+                                       ~~~~~~~~~~^
+        input_ids=input_ids,
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<8 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/utils/generic.py", line 1064, in wrapper
+    outputs = func(self, *args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/models/gemma3/modeling_gemma3.py", line 555, in forward
+    layer_outputs = decoder_layer(
+        hidden_states,
+    ...<8 lines>...
+        **kwargs,
+    )
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/modeling_layers.py", line 94, in __call__
+    return super().__call__(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/utils/deprecation.py", line 172, in wrapped_func
+    return func(*args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/models/gemma3/modeling_gemma3.py", line 405, in forward
+    hidden_states = self.mlp(hidden_states)
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/models/gemma3/modeling_gemma3.py", line 129, in forward
+    down_proj = self.down_proj(self.act_fn(self.gate_proj(x)) * self.up_proj(x))
+                                                                ~~~~~~~~~~~~^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/peft/tuners/lora/layer.py", line 771, in forward
+    result = result + lora_B(lora_A(dropout(x))) * scaling
+                      ~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/scur1887/.local/lib/python3.13/site-packages/torch/nn/modules/linear.py", line 125, in forward
+    return F.linear(input, self.weight, self.bias)
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 216.00 MiB. GPU 0 has a total capacity of 39.49 GiB of which 213.25 MiB is free. Including non-PyTorch memory, this process has 39.28 GiB memory in use. Of the allocated memory 37.77 GiB is allocated by PyTorch, and 1.01 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+[1;34mwandb[0m: 
+[1;34mwandb[0m: 🚀 View run [33miconic-dream-96[0m at: [34mhttps://wandb.ai/gerbennkoopman-university-of-amsterdam/reptile-meta-learning/runs/0ir5pynf[0m
+[1;34mwandb[0m: Find logs at: [1;35m../../../../gpfs/home6/scur1887/dl4nlp/src/wandb/run-20251008_135424-0ir5pynf/logs[0m
+srun: error: gcn70: task 0: Exited with exit code 1
+srun: Terminating StepId=15197026.1
+
+JOB STATISTICS
+==============
+Job ID: 15197026
+Cluster: snellius
+User/Group: scur1887/scur1887
+State: FAILED (exit code 1)
+Nodes: 1
+Cores per node: 18
+CPU Utilized: 00:00:01
+CPU Efficiency: 0.06% of 00:27:18 core-walltime
+Job Wall-clock time: 00:01:31
+Memory Utilized: 6.05 GB
+Memory Efficiency: 5.05% of 120.00 GB (120.00 GB/node)

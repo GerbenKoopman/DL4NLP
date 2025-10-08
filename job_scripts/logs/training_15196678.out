@@ -1,0 +1,57 @@
+============================================================================================== 
+Warning! Mixing Conda and module environments may lead to corruption of the
+user environment. 
+We do not recommend users mixing those two environments unless absolutely
+necessary. Note that 
+SURF does not provide any support for Conda environment.
+For more information, please refer to our software policy page:
+https://servicedesk.surf.nl/wiki/display/WIKI/Software+policy+Snellius#SoftwarepolicySnellius-UseofAnacondaandMinicondaenvironmentsonSnellius 
+
+Remember that many packages have already been installed on the system and can
+be loaded using 
+the 'module load <package__name>' command. If you are uncertain if a package is
+already available 
+on the system, please use 'module avail' or 'module spider' to search for it.
+============================================================================================== 
+usage: train_lora.py [-h] [--model {270m,1b}] [--epochs EPOCHS]
+                     [--batch_size BATCH_SIZE]
+                     [--eval_batch_size EVAL_BATCH_SIZE]
+                     [--gradient_accumulation_steps GRADIENT_ACCUMULATION_STEPS]
+                     [--learning_rate LEARNING_RATE] [--output_dir OUTPUT_DIR]
+                     [--language_groups LANGUAGE_GROUPS [LANGUAGE_GROUPS ...]]
+train_lora.py: error: unrecognized arguments: --batch-size 64
+srun: error: gcn25: task 0: Exited with exit code 2
+srun: Terminating StepId=15196678.0
+usage: train_lora.py [-h] [--model {270m,1b}] [--epochs EPOCHS]
+                     [--batch_size BATCH_SIZE]
+                     [--eval_batch_size EVAL_BATCH_SIZE]
+                     [--gradient_accumulation_steps GRADIENT_ACCUMULATION_STEPS]
+                     [--learning_rate LEARNING_RATE] [--output_dir OUTPUT_DIR]
+                     [--language_groups LANGUAGE_GROUPS [LANGUAGE_GROUPS ...]]
+train_lora.py: error: unrecognized arguments: --batch-size 64
+srun: error: gcn25: task 0: Exited with exit code 2
+srun: Terminating StepId=15196678.1
+usage: train_lora.py [-h] [--model {270m,1b}] [--epochs EPOCHS]
+                     [--batch_size BATCH_SIZE]
+                     [--eval_batch_size EVAL_BATCH_SIZE]
+                     [--gradient_accumulation_steps GRADIENT_ACCUMULATION_STEPS]
+                     [--learning_rate LEARNING_RATE] [--output_dir OUTPUT_DIR]
+                     [--language_groups LANGUAGE_GROUPS [LANGUAGE_GROUPS ...]]
+train_lora.py: error: unrecognized arguments: --batch-size 64
+srun: error: gcn25: task 0: Exited with exit code 2
+srun: Terminating StepId=15196678.2
+
+JOB STATISTICS
+==============
+Job ID: 15196678
+Cluster: snellius
+User/Group: scur1887/scur1887
+State: RUNNING
+Nodes: 1
+Cores per node: 18
+CPU Utilized: 00:00:00
+CPU Efficiency: 0.00% of 00:11:24 core-walltime
+Job Wall-clock time: 00:00:38
+Memory Utilized: 6.64 MB
+Memory Efficiency: 0.01% of 120.00 GB (120.00 GB/node)
+WARNING: Efficiency statistics can only be obtained after the job has ended as seff tool is based on the accounting database data.
