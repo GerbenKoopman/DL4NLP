@@ -2,6 +2,8 @@ name: dl4nlp
 channels:
   - defaults
   - conda-forge
+  - pytorch
+  - nvidia
 dependencies:
   - python >=3.11
   - pip
@@ -24,6 +26,7 @@ dependencies:
     - scipy==1.16.2
     - sentencepiece==0.2.1
     - torch==2.8.0
+    - pytorch-cuda==12.1.0
     - tokenizers==0.22.0
     - tqdm==4.67.1
     - transformers==4.56.1
