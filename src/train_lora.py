@@ -192,17 +192,16 @@ class LoRAFinetuner:
             gradient_accumulation_steps=gradient_accumulation_steps,
             learning_rate=learning_rate,
             logging_dir=f"{output_dir}/logs",
-            logging_steps=10,
-            eval_strategy="steps",
-            eval_steps=100,
+            logging_strategy="epoch",
+            eval_strategy="epoch",
             eval_accumulation_steps=1,
             include_inputs_for_metrics=False,
             save_strategy="epoch",
             save_total_limit=2,
             report_to="wandb" if os.getenv("WANDB_API_KEY") else "none",
             bf16=torch.cuda.is_available(),  # Enable bf16 if a GPU is available
-            load_best_model_at_end=False,
-            do_predict=True,
+            load_best_model_at_end=True,
+            do_predict=False,
         )
 
         # Data collator
@@ -233,15 +232,29 @@ class LoRAFinetuner:
         trainer.save_model(str(adapter_output_dir))
         logger.info(f"LoRA adapter saved to {adapter_output_dir}")
 
-        # Log final results
-        eval_results = trainer.evaluate()
-        logger.info(f"Final evaluation results: {eval_results}")
+        # Log final results on the dev set
+        dev_eval_results = trainer.evaluate(eval_dataset=tokenized_eval_dataset)
+        logger.info(f"Final evaluation results on dev set: {dev_eval_results}")
 
-        results_file = Path(output_dir) / "final_evaluation_results.json"
-        with open(results_file, "w", encoding="utf-8") as f:
-            json.dump(eval_results, f, indent=2)
+        dev_results_file = Path(output_dir) / "final_dev_evaluation_results.json"
+        with open(dev_results_file, "w", encoding="utf-8") as f:
+            json.dump(dev_eval_results, f, indent=2)
+        logger.info(f"Dev results saved to {dev_results_file}")
 
-        logger.info(f"Final results saved to {results_file}")
+        # Evaluate on the test set
+        logger.info("Evaluating on the test set.")
+        test_dataset = self._load_and_prepare_data("test")
+        tokenized_test_dataset = test_dataset.map(
+            self._preprocess_function, batched=True
+        )
+        test_results = trainer.evaluate(eval_dataset=tokenized_test_dataset)
+        logger.info(f"Test evaluation results: {test_results}")
+
+        test_results_file = Path(output_dir) / "final_test_evaluation_results.json"
+        with open(test_results_file, "w", encoding="utf-8") as f:
+            json.dump(test_results, f, indent=2)
+
+        logger.info(f"Test results saved to {test_results_file}")
 
 
 def main():
