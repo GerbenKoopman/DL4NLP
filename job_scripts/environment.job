@@ -14,5 +14,5 @@ module load Anaconda3/2025.06-1
 
 cd $HOME/dl4nlp
 
-conda env create -f environment.yml -n dl4nlp
-# conda env update --file environment.yml --prune
+# conda env create -f environment.yml -n dl4nlp
+conda env update --file environment.yml --prune

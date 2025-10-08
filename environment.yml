@@ -36,4 +36,4 @@ dependencies:
     - trl>=0.21.0
     - peft>=0.14.0
     - wandb==0.22.0
-    # - flash-attn
+    - flash-attn
