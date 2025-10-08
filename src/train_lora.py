@@ -195,6 +195,8 @@ class LoRAFinetuner:
             logging_steps=10,
             eval_strategy="steps",
             eval_steps=100,
+            eval_accumulation_steps=1,
+            include_inputs_for_metrics=False,
             save_strategy="epoch",
             save_total_limit=2,
             report_to="wandb" if os.getenv("WANDB_API_KEY") else "none",
