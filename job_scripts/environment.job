@@ -16,8 +16,8 @@ module load CUDA/12.8.0
 cd $HOME/dl4nlp
 
 # conda env create -f environment.yml -n dl4nlp
-conda update --name dl4nlp --file environment.yml --prune
-
 source activate dl4nlp
+conda update --file environment.yml --prune
+
 pip install flash-attn
 source deactivate
