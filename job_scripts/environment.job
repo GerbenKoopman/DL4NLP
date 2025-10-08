@@ -17,3 +17,7 @@ cd $HOME/dl4nlp
 
 # conda env create -f environment.yml -n dl4nlp
 conda env update --file environment.yml --prune
+
+source activate dl4nlp
+pip install flash-attn
+conda deactivate
