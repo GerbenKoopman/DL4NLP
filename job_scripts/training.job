@@ -16,6 +16,6 @@ source activate dl4nlp
 
 cd $HOME/dl4nlp/src
 
-srun python3 train_lora.py --batch-size 64 --epochs 1 --language_groups az_tr_en
-srun python3 train_lora.py --batch-size 64 --epochs 1 --language_groups be_uk_en
-srun python3 train_lora.py --batch-size 64 --epochs 1 --language_groups az_tr_en be_uk_en
+srun python3 train_lora.py --batch_size 64 --epochs 1 --language_groups az_tr_en
+srun python3 train_lora.py --batch_size 64 --epochs 1 --language_groups be_uk_en
+srun python3 train_lora.py --batch_size 64 --epochs 1 --language_groups az_tr_en be_uk_en
