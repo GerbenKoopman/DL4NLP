@@ -39,6 +39,8 @@ class LoRAFinetuner:
         device: Optional[str] = None,
         max_train_samples: Optional[int] = None,
         max_eval_samples: Optional[int] = None,
+        train_pair_policy: str = "base",
+        eval_pair_policy: str = "target",
     ):
         self.model_name = model_name
         self.language_groups = language_groups
@@ -54,6 +56,10 @@ class LoRAFinetuner:
         self.max_train_samples = max_train_samples
         self.max_eval_samples = max_eval_samples
 
+        # Pair selection policies: "all", "base" (pairs with en), "target" (az↔tr or be↔uk)
+        self.train_pair_policy = train_pair_policy
+        self.eval_pair_policy = eval_pair_policy
+
         # Initialize metrics
         self.chrf = evaluate.load("chrf")
         self.bleu = evaluate.load("sacrebleu")
@@ -66,7 +72,7 @@ class LoRAFinetuner:
 
         os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
 
-    def _load_and_prepare_data(self, split: str) -> Dataset:
+    def _load_and_prepare_data(self, split: str, pair_policy: str = "all") -> Dataset:
         """Load data and format it into a Hugging Face Dataset."""
         all_examples = []
         for group in self.language_groups:
@@ -82,7 +88,24 @@ class LoRAFinetuner:
                     langs = [col for col in df.columns if col not in ["talk_name"]]
                     for src_lang in langs:
                         for tgt_lang in langs:
-                            if src_lang != tgt_lang:
+                            if src_lang == tgt_lang:
+                                continue
+                            keep = False
+                            if pair_policy == "all":
+                                keep = True
+                            elif pair_policy == "base":
+                                # Base pairs involve English on either side
+                                keep = (src_lang == "en" or tgt_lang == "en")
+                            elif pair_policy == "target":
+                                # Target pairs are within the related-language subset per triad
+                                target_set = None
+                                if "az_tr" in group:
+                                    target_set = {"az", "tr"}
+                                elif "be_uk" in group:
+                                    target_set = {"be", "uk"}
+                                if target_set is not None:
+                                    keep = (src_lang in target_set and tgt_lang in target_set)
+                            if keep:
                                 all_examples.append(
                                     {
                                         "source_text": row[src_lang],
@@ -187,12 +210,12 @@ class LoRAFinetuner:
         logger.info("Starting LoRA fine-tuning.")
 
         # Load and preprocess data
-        train_dataset = self._load_and_prepare_data("train")
+        train_dataset = self._load_and_prepare_data("train", pair_policy=self.train_pair_policy)
         tokenized_train_dataset = train_dataset.map(
             self._preprocess_function, batched=True
         )
 
-        eval_dataset = self._load_and_prepare_data("dev")
+        eval_dataset = self._load_and_prepare_data("dev", pair_policy=self.eval_pair_policy)
         tokenized_eval_dataset = eval_dataset.map(
             self._preprocess_function, batched=True
         )
@@ -267,7 +290,7 @@ class LoRAFinetuner:
 
         # Evaluate on the test set
         logger.info("Evaluating on the test set.")
-        test_dataset = self._load_and_prepare_data("test")
+        test_dataset = self._load_and_prepare_data("test", pair_policy=self.eval_pair_policy)
         tokenized_test_dataset = test_dataset.map(
             self._preprocess_function, batched=True
         )
@@ -337,6 +360,18 @@ def main():
         default=None,
         help="Limit number of eval/test examples (for quick local sanity checks)",
     )
+    parser.add_argument(
+        "--train_pair_policy",
+        choices=["all", "base", "target"],
+        default="base",
+        help="Which direction pairs to include for TRAIN (default: base=with English)",
+    )
+    parser.add_argument(
+        "--eval_pair_policy",
+        choices=["all", "base", "target"],
+        default="target",
+        help="Which direction pairs to include for EVAL/TEST (default: target=within related languages)",
+    )
     args = parser.parse_args()
 
     # Load .env file
@@ -363,6 +398,8 @@ def main():
         device=args.device,
         max_train_samples=args.max_train_samples,
         max_eval_samples=args.max_eval_samples,
+        train_pair_policy=args.train_pair_policy,
+        eval_pair_policy=args.eval_pair_policy,
     )
 
     try:
