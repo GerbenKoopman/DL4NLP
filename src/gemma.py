@@ -89,7 +89,8 @@ class GemmaTranslationModel:
                 )
 
                 if self.device == "mps":
-                    model_dtype = torch.float16
+                    # Use float32 on MPS for stability with LoRA/PEFT
+                    model_dtype = torch.float32
                     device_map = None
                 elif self.device == "cuda":
                     model_dtype = torch.bfloat16
@@ -111,10 +112,22 @@ class GemmaTranslationModel:
                 self.model = get_peft_model(self.model, lora_config)
                 self.model.print_trainable_parameters()
 
+                # MPS stability tweaks: disable grad checkpointing and cache
+                if self.device == "mps":
+                    if hasattr(self.model, "gradient_checkpointing_disable"):
+                        self.model.gradient_checkpointing_disable()
+                    # Some PEFT models expose base model under different attrs; guard accordingly
+                    try:
+                        self.model.config.use_cache = False
+                    except Exception:
+                        pass
+                    logger.info("MPS: using float32, gradient checkpointing disabled, use_cache=False")
+
             else:
                 # Standard model loading without LoRA
                 if self.device == "mps":
-                    model_dtype = torch.float16
+                    # Use float32 on MPS for inference stability too
+                    model_dtype = torch.float32
                     device_map = None
                 elif self.device == "cuda":
                     model_dtype = torch.bfloat16

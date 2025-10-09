@@ -36,6 +36,9 @@ class LoRAFinetuner:
         token: Optional[str] = None,
         wandb_api_key: Optional[str] = None,
         wandb_project: Optional[str] = None,
+        device: Optional[str] = None,
+        max_train_samples: Optional[int] = None,
+        max_eval_samples: Optional[int] = None,
     ):
         self.model_name = model_name
         self.language_groups = language_groups
@@ -43,8 +46,13 @@ class LoRAFinetuner:
             model_name=self.model_name,
             token=token,
             use_lora=True,
+            device=device,
         )
         self.gemma.load_model()
+
+        # Optional sample limits for quick local runs
+        self.max_train_samples = max_train_samples
+        self.max_eval_samples = max_eval_samples
 
         # Initialize metrics
         self.chrf = evaluate.load("chrf")
@@ -130,7 +138,13 @@ class LoRAFinetuner:
         if self.gemma.tokenizer is None:
             raise ValueError("Tokenizer is not available for computing metrics.")
 
-        # Decode generated summaries, which are in preds
+        # Convert logits → token ids if needed
+        if isinstance(predictions, (list, tuple)):
+            predictions = np.asarray(predictions)
+        if hasattr(predictions, "ndim") and predictions.ndim == 3:
+            predictions = np.argmax(predictions, axis=-1)
+
+        # Decode predictions as token ids
         decoded_preds = self.gemma.tokenizer.batch_decode(
             predictions, skip_special_tokens=True
         )
@@ -183,6 +197,14 @@ class LoRAFinetuner:
             self._preprocess_function, batched=True
         )
 
+        # Optionally subsample for speed
+        if self.max_train_samples is not None and len(tokenized_train_dataset) > self.max_train_samples:
+            tokenized_train_dataset = tokenized_train_dataset.select(range(self.max_train_samples))
+            logger.info(f"Subsampled train dataset to {len(tokenized_train_dataset)} examples")
+        if self.max_eval_samples is not None and len(tokenized_eval_dataset) > self.max_eval_samples:
+            tokenized_eval_dataset = tokenized_eval_dataset.select(range(self.max_eval_samples))
+            logger.info(f"Subsampled eval dataset to {len(tokenized_eval_dataset)} examples")
+
         # Define training arguments
         training_args = TrainingArguments(
             output_dir=output_dir,
@@ -192,7 +214,9 @@ class LoRAFinetuner:
             gradient_accumulation_steps=gradient_accumulation_steps,
             learning_rate=learning_rate,
             logging_dir=f"{output_dir}/logs",
-            logging_strategy="epoch",
+            logging_strategy="steps",
+            logging_steps=1,
+            logging_first_step=True,
             eval_strategy="epoch",
             eval_accumulation_steps=1,
             include_inputs_for_metrics=False,
@@ -247,6 +271,10 @@ class LoRAFinetuner:
         tokenized_test_dataset = test_dataset.map(
             self._preprocess_function, batched=True
         )
+        # Optionally subsample test as well
+        if self.max_eval_samples is not None and len(tokenized_test_dataset) > self.max_eval_samples:
+            tokenized_test_dataset = tokenized_test_dataset.select(range(self.max_eval_samples))
+            logger.info(f"Subsampled test dataset to {len(tokenized_test_dataset)} examples")
         test_results = trainer.evaluate(eval_dataset=tokenized_test_dataset)
         logger.info(f"Test evaluation results: {test_results}")
 
@@ -291,6 +319,24 @@ def main():
         default=["az_tr_en", "be_uk_en"],
         help="Language groups to use for training (e.g., az_tr_en be_uk_en).",
     )
+    parser.add_argument(
+        "--device",
+        choices=["cpu", "mps", "cuda"],
+        default=None,
+        help="Force a device (cpu/mps/cuda). If omitted, gemma decides.",
+    )
+    parser.add_argument(
+        "--max_train_samples",
+        type=int,
+        default=None,
+        help="Limit number of training examples (for quick local sanity checks)",
+    )
+    parser.add_argument(
+        "--max_eval_samples",
+        type=int,
+        default=None,
+        help="Limit number of eval/test examples (for quick local sanity checks)",
+    )
     args = parser.parse_args()
 
     # Load .env file
@@ -314,6 +360,9 @@ def main():
         token=token,
         wandb_api_key=wandb_api_key,
         wandb_project=wandb_project,
+        device=args.device,
+        max_train_samples=args.max_train_samples,
+        max_eval_samples=args.max_eval_samples,
     )
 
     try:
