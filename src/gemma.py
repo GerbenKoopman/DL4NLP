@@ -5,8 +5,8 @@ Handles translation tasks using Gemma-3-1B-IT with proper prompting
 
 import torch
 import os
-from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
-from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
+from transformers import AutoTokenizer, AutoModelForCausalLM
+from peft import LoraConfig, get_peft_model
 from typing import List, Dict, Optional
 import logging
 

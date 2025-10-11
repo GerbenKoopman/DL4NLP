@@ -12,9 +12,7 @@ from typing import Dict, List, Optional
 import os
 from dotenv import load_dotenv
 from datasets import Dataset
-import torch
 import evaluate
-import numpy as np
 
 from gemma import GemmaTranslationModel
 from paths import paths
