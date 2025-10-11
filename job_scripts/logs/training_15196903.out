@@ -1,0 +1,122 @@
+============================================================================================== 
+Warning! Mixing Conda and module environments may lead to corruption of the
+user environment. 
+We do not recommend users mixing those two environments unless absolutely
+necessary. Note that 
+SURF does not provide any support for Conda environment.
+For more information, please refer to our software policy page:
+https://servicedesk.surf.nl/wiki/display/WIKI/Software+policy+Snellius#SoftwarepolicySnellius-UseofAnacondaandMinicondaenvironmentsonSnellius 
+
+Remember that many packages have already been installed on the system and can
+be loaded using 
+the 'module load <package__name>' command. If you are uncertain if a package is
+already available 
+on the system, please use 'module avail' or 'module spider' to search for it.
+============================================================================================== 
+WARNING:gemma:No HUGGINGFACE_HUB_TOKEN found. Model loading may fail if the model is private.
+INFO:gemma:Loading google/gemma-3-1b-it...
+INFO:accelerate.utils.modeling:We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+INFO:gemma:Gemma model loaded successfully!
+trainable params: 3,261,440 || all params: 1,003,147,392 || trainable%: 0.3251
+Downloading builder script: 0.00B [00:00, ?B/s]Downloading builder script: 9.01kB [00:00, 26.8MB/s]
+Downloading builder script: 0.00B [00:00, ?B/s]Downloading builder script: 8.15kB [00:00, 30.4MB/s]
+INFO:__main__:Starting LoRA fine-tuning.
+WARNING:__main__:Data file not found: /gpfs/home6/scur1887/dl4nlp/datasets/az_tr_en_train.pkl. Skipping.
+ERROR:__main__:Training failed: No train data could be loaded.
+Traceback (most recent call last):
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 305, in main
+    finetuner.train(
+    ~~~~~~~~~~~~~~~^
+        output_dir=str(output_dir),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        gradient_accumulation_steps=args.gradient_accumulation_steps,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 176, in train
+    train_dataset = self._load_and_prepare_data("train")
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 87, in _load_and_prepare_data
+    raise FileNotFoundError(f"No {split} data could be loaded.")
+FileNotFoundError: No train data could be loaded.
+Traceback (most recent call last):
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 320, in <module>
+    main()
+    ~~~~^^
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 305, in main
+    finetuner.train(
+    ~~~~~~~~~~~~~~~^
+        output_dir=str(output_dir),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        gradient_accumulation_steps=args.gradient_accumulation_steps,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 176, in train
+    train_dataset = self._load_and_prepare_data("train")
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 87, in _load_and_prepare_data
+    raise FileNotFoundError(f"No {split} data could be loaded.")
+FileNotFoundError: No train data could be loaded.
+srun: error: gcn30: task 0: Exited with exit code 1
+srun: Terminating StepId=15196903.0
+WARNING:gemma:No HUGGINGFACE_HUB_TOKEN found. Model loading may fail if the model is private.
+INFO:gemma:Loading google/gemma-3-1b-it...
+INFO:accelerate.utils.modeling:We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+INFO:gemma:Gemma model loaded successfully!
+INFO:__main__:Starting LoRA fine-tuning.
+WARNING:__main__:Data file not found: /gpfs/home6/scur1887/dl4nlp/datasets/be_uk_en_train.pkl. Skipping.
+ERROR:__main__:Training failed: No train data could be loaded.
+Traceback (most recent call last):
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 305, in main
+    finetuner.train(
+    ~~~~~~~~~~~~~~~^
+        output_dir=str(output_dir),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        gradient_accumulation_steps=args.gradient_accumulation_steps,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 176, in train
+    train_dataset = self._load_and_prepare_data("train")
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 87, in _load_and_prepare_data
+    raise FileNotFoundError(f"No {split} data could be loaded.")
+FileNotFoundError: No train data could be loaded.
+trainable params: 3,261,440 || all params: 1,003,147,392 || trainable%: 0.3251
+Traceback (most recent call last):
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 320, in <module>
+    main()
+    ~~~~^^
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 305, in main
+    finetuner.train(
+    ~~~~~~~~~~~~~~~^
+        output_dir=str(output_dir),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        gradient_accumulation_steps=args.gradient_accumulation_steps,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 176, in train
+    train_dataset = self._load_and_prepare_data("train")
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 87, in _load_and_prepare_data
+    raise FileNotFoundError(f"No {split} data could be loaded.")
+FileNotFoundError: No train data could be loaded.
+srun: error: gcn30: task 0: Exited with exit code 1
+srun: Terminating StepId=15196903.1
+
+JOB STATISTICS
+==============
+Job ID: 15196903
+Cluster: snellius
+User/Group: scur1887/scur1887
+State: RUNNING
+Nodes: 1
+Cores per node: 18
+CPU Utilized: 00:00:00
+CPU Efficiency: 0.00% of 00:16:30 core-walltime
+Job Wall-clock time: 00:00:55
+Memory Utilized: 3.79 MB
+Memory Efficiency: 0.00% of 120.00 GB (120.00 GB/node)
+WARNING: Efficiency statistics can only be obtained after the job has ended as seff tool is based on the accounting database data.

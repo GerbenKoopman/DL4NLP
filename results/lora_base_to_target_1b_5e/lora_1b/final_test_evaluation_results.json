@@ -1,0 +1,9 @@
+{
+  "eval_loss": 0.7736564874649048,
+  "eval_chrf": 59.54208239791048,
+  "eval_bleu": 44.1173796630898,
+  "eval_runtime": 17.2501,
+  "eval_samples_per_second": 0.58,
+  "eval_steps_per_second": 0.29,
+  "epoch": 5.0
+}

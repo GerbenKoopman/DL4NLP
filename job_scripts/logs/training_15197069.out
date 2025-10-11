@@ -1,0 +1,436 @@
+============================================================================================== 
+Warning! Mixing Conda and module environments may lead to corruption of the
+user environment. 
+We do not recommend users mixing those two environments unless absolutely
+necessary. Note that 
+SURF does not provide any support for Conda environment.
+For more information, please refer to our software policy page:
+https://servicedesk.surf.nl/wiki/display/WIKI/Software+policy+Snellius#SoftwarepolicySnellius-UseofAnacondaandMinicondaenvironmentsonSnellius 
+
+Remember that many packages have already been installed on the system and can
+be loaded using 
+the 'module load <package__name>' command. If you are uncertain if a package is
+already available 
+on the system, please use 'module avail' or 'module spider' to search for it.
+============================================================================================== 
+INFO:gemma:Using Hugging Face token for authentication.
+INFO:gemma:Loading google/gemma-3-1b-it...
+INFO:accelerate.utils.modeling:We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+INFO:gemma:Gemma model loaded successfully!
+INFO:__main__:Starting LoRA fine-tuning.
+INFO:__main__:Loading train data from /gpfs/home6/scur1887/dl4nlp/datasets/az_tr_en_train.pkl
+trainable params: 3,261,440 || all params: 1,003,147,392 || trainable%: 0.3251
+Map:   0%|          | 0/33510 [00:00<?, ? examples/s]Map:   3%|▎         | 1000/33510 [00:00<00:04, 7686.03 examples/s]Map:   6%|▌         | 2000/33510 [00:00<00:03, 8109.64 examples/s]Map:   9%|▉         | 3000/33510 [00:00<00:03, 8226.70 examples/s]Map:  12%|█▏        | 4000/33510 [00:00<00:03, 8334.54 examples/s]Map:  15%|█▍        | 5000/33510 [00:00<00:03, 8301.60 examples/s]Map:  18%|█▊        | 6000/33510 [00:00<00:03, 8355.97 examples/s]Map:  21%|██        | 7000/33510 [00:00<00:03, 8441.68 examples/s]Map:  24%|██▍       | 8000/33510 [00:00<00:03, 8444.49 examples/s]Map:  27%|██▋       | 9000/33510 [00:01<00:02, 8412.49 examples/s]Map:  30%|██▉       | 10000/33510 [00:01<00:02, 8196.33 examples/s]Map:  33%|███▎      | 11000/33510 [00:01<00:02, 8197.00 examples/s]Map:  36%|███▌      | 12000/33510 [00:01<00:02, 8278.01 examples/s]Map:  39%|███▉      | 13000/33510 [00:01<00:02, 8338.93 examples/s]Map:  42%|████▏     | 14000/33510 [00:01<00:02, 8373.95 examples/s]Map:  45%|████▍     | 15000/33510 [00:01<00:02, 8396.91 examples/s]Map:  48%|████▊     | 16000/33510 [00:01<00:02, 8445.27 examples/s]Map:  51%|█████     | 17000/33510 [00:02<00:01, 8443.51 examples/s]Map:  54%|█████▎    | 18000/33510 [00:02<00:01, 8411.52 examples/s]Map:  57%|█████▋    | 19000/33510 [00:02<00:01, 7996.14 examples/s]Map:  60%|█████▉    | 20000/33510 [00:02<00:01, 8055.46 examples/s]Map:  63%|██████▎   | 21000/33510 [00:02<00:01, 8178.27 examples/s]Map:  66%|██████▌   | 22000/33510 [00:02<00:01, 8254.47 examples/s]Map:  69%|██████▊   | 23000/33510 [00:02<00:01, 8300.10 examples/s]Map:  72%|███████▏  | 24000/33510 [00:02<00:01, 8404.90 examples/s]Map:  75%|███████▍  | 25000/33510 [00:03<00:01, 8464.00 examples/s]Map:  78%|███████▊  | 26000/33510 [00:03<00:00, 8498.26 examples/s]Map:  81%|████████  | 27000/33510 [00:03<00:00, 8525.72 examples/s]Map:  84%|████████▎ | 28000/33510 [00:03<00:00, 8533.23 examples/s]Map:  87%|████████▋ | 29000/33510 [00:03<00:00, 8496.72 examples/s]Map:  90%|████████▉ | 30000/33510 [00:03<00:00, 8481.91 examples/s]Map:  93%|█████████▎| 31000/33510 [00:03<00:00, 8468.60 examples/s]Map:  95%|█████████▌| 32000/33510 [00:03<00:00, 8472.77 examples/s]Map:  98%|█████████▊| 33000/33510 [00:03<00:00, 8442.32 examples/s]Map: 100%|██████████| 33510/33510 [00:04<00:00, 8343.38 examples/s]
+INFO:__main__:Loading dev data from /gpfs/home6/scur1887/dl4nlp/datasets/az_tr_en_dev.pkl
+Map:   0%|          | 0/2940 [00:00<?, ? examples/s]Map:  34%|███▍      | 1000/2940 [00:00<00:00, 8495.05 examples/s]Map:  68%|██████▊   | 2000/2940 [00:00<00:00, 8495.78 examples/s]Map: 100%|██████████| 2940/2940 [00:00<00:00, 8441.52 examples/s]Map: 100%|██████████| 2940/2940 [00:00<00:00, 8379.56 examples/s]
+/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/pydantic/_internal/_generate_schema.py:2249: UnsupportedFieldAttributeWarning: The 'repr' attribute with value False was provided to the `Field()` function, which has no effect in the context it was used. 'repr' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+  warnings.warn(
+/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/pydantic/_internal/_generate_schema.py:2249: UnsupportedFieldAttributeWarning: The 'frozen' attribute with value True was provided to the `Field()` function, which has no effect in the context it was used. 'frozen' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+  warnings.warn(
+Received unrecognized `WANDB_LOG_MODEL` setting value=epoch; so disabling `WANDB_LOG_MODEL`
+INFO:__main__:Training...
+wandb: Currently logged in as: gerbennkoopman (gerbennkoopman-university-of-amsterdam) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: Tracking run with wandb version 0.22.0
+wandb: Run data is saved locally in /gpfs/home6/scur1887/dl4nlp/src/wandb/run-20251008_135848-rafd1ovq
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run glad-jazz-97
+wandb: ⭐️ View project at https://wandb.ai/gerbennkoopman-university-of-amsterdam/reptile-meta-learning
+wandb: 🚀 View run at https://wandb.ai/gerbennkoopman-university-of-amsterdam/reptile-meta-learning/runs/rafd1ovq
+  0%|          | 0/1048 [00:00<?, ?it/s]  0%|          | 1/1048 [00:01<25:00,  1.43s/it]  0%|          | 2/1048 [00:02<20:43,  1.19s/it]  0%|          | 3/1048 [00:03<19:17,  1.11s/it]  0%|          | 4/1048 [00:04<18:36,  1.07s/it]  0%|          | 5/1048 [00:05<18:14,  1.05s/it]  1%|          | 6/1048 [00:06<17:59,  1.04s/it]  1%|          | 7/1048 [00:07<17:50,  1.03s/it]  1%|          | 8/1048 [00:08<17:44,  1.02s/it]  1%|          | 9/1048 [00:09<17:39,  1.02s/it]  1%|          | 10/1048 [00:10<17:35,  1.02s/it]                                                   1%|          | 10/1048 [00:10<17:35,  1.02s/it]  1%|          | 11/1048 [00:11<17:33,  1.02s/it]  1%|          | 12/1048 [00:12<17:30,  1.01s/it]  1%|          | 13/1048 [00:13<17:28,  1.01s/it]  1%|▏         | 14/1048 [00:14<17:26,  1.01s/it]  1%|▏         | 15/1048 [00:15<17:25,  1.01s/it]  2%|▏         | 16/1048 [00:16<17:24,  1.01s/it]  2%|▏         | 17/1048 [00:17<17:23,  1.01s/it]  2%|▏         | 18/1048 [00:18<17:21,  1.01s/it]  2%|▏         | 19/1048 [00:19<17:21,  1.01s/it]  2%|▏         | 20/1048 [00:20<17:20,  1.01s/it]                                                   2%|▏         | 20/1048 [00:20<17:20,  1.01s/it]  2%|▏         | 21/1048 [00:21<17:19,  1.01s/it]  2%|▏         | 22/1048 [00:22<17:18,  1.01s/it]  2%|▏         | 23/1048 [00:23<17:16,  1.01s/it]  2%|▏         | 24/1048 [00:24<17:15,  1.01s/it]  2%|▏         | 25/1048 [00:25<17:15,  1.01s/it]  2%|▏         | 26/1048 [00:26<17:13,  1.01s/it]  3%|▎         | 27/1048 [00:27<17:12,  1.01s/it]  3%|▎         | 28/1048 [00:28<17:11,  1.01s/it]  3%|▎         | 29/1048 [00:29<17:10,  1.01s/it]  3%|▎         | 30/1048 [00:30<17:09,  1.01s/it]                                                   3%|▎         | 30/1048 [00:30<17:09,  1.01s/it]  3%|▎         | 31/1048 [00:31<17:08,  1.01s/it]  3%|▎         | 32/1048 [00:32<17:07,  1.01s/it]  3%|▎         | 33/1048 [00:33<17:07,  1.01s/it]  3%|▎         | 34/1048 [00:34<17:06,  1.01s/it]  3%|▎         | 35/1048 [00:35<17:05,  1.01s/it]  3%|▎         | 36/1048 [00:36<17:04,  1.01s/it]  4%|▎         | 37/1048 [00:37<17:04,  1.01s/it]  4%|▎         | 38/1048 [00:38<17:02,  1.01s/it]  4%|▎         | 39/1048 [00:39<17:00,  1.01s/it]  4%|▍         | 40/1048 [00:40<16:59,  1.01s/it]                                                   4%|▍         | 40/1048 [00:40<16:59,  1.01s/it]  4%|▍         | 41/1048 [00:41<16:59,  1.01s/it]  4%|▍         | 42/1048 [00:42<16:58,  1.01s/it]  4%|▍         | 43/1048 [00:43<16:58,  1.01s/it]  4%|▍         | 44/1048 [00:44<16:57,  1.01s/it]  4%|▍         | 45/1048 [00:45<16:56,  1.01s/it]  4%|▍         | 46/1048 [00:46<16:54,  1.01s/it]  4%|▍         | 47/1048 [00:47<16:53,  1.01s/it]  5%|▍         | 48/1048 [00:49<16:52,  1.01s/it]  5%|▍         | 49/1048 [00:50<16:52,  1.01s/it]  5%|▍         | 50/1048 [00:51<16:51,  1.01s/it]                                                   5%|▍         | 50/1048 [00:51<16:51,  1.01s/it]  5%|▍         | 51/1048 [00:52<16:49,  1.01s/it]  5%|▍         | 52/1048 [00:53<16:47,  1.01s/it]  5%|▌         | 53/1048 [00:54<16:46,  1.01s/it]  5%|▌         | 54/1048 [00:55<16:45,  1.01s/it]  5%|▌         | 55/1048 [00:56<16:43,  1.01s/it]  5%|▌         | 56/1048 [00:57<16:41,  1.01s/it]  5%|▌         | 57/1048 [00:58<16:40,  1.01s/it]  6%|▌         | 58/1048 [00:59<16:40,  1.01s/it]  6%|▌         | 59/1048 [01:00<16:38,  1.01s/it]  6%|▌         | 60/1048 [01:01<16:37,  1.01s/it]                                                   6%|▌         | 60/1048 [01:01<16:37,  1.01s/it]  6%|▌         | 61/1048 [01:02<16:36,  1.01s/it]  6%|▌         | 62/1048 [01:03<16:35,  1.01s/it]  6%|▌         | 63/1048 [01:04<16:34,  1.01s/it]  6%|▌         | 64/1048 [01:05<16:33,  1.01s/it]  6%|▌         | 65/1048 [01:06<16:32,  1.01s/it]  6%|▋         | 66/1048 [01:07<16:31,  1.01s/it]  6%|▋         | 67/1048 [01:08<16:31,  1.01s/it]  6%|▋         | 68/1048 [01:09<16:30,  1.01s/it]  7%|▋         | 69/1048 [01:10<16:29,  1.01s/it]  7%|▋         | 70/1048 [01:11<16:28,  1.01s/it]                                                   7%|▋         | 70/1048 [01:11<16:28,  1.01s/it]  7%|▋         | 71/1048 [01:12<16:27,  1.01s/it]  7%|▋         | 72/1048 [01:13<16:26,  1.01s/it]  7%|▋         | 73/1048 [01:14<16:25,  1.01s/it]  7%|▋         | 74/1048 [01:15<16:23,  1.01s/it]  7%|▋         | 75/1048 [01:16<16:22,  1.01s/it]  7%|▋         | 76/1048 [01:17<16:21,  1.01s/it]  7%|▋         | 77/1048 [01:18<16:20,  1.01s/it]  7%|▋         | 78/1048 [01:19<16:20,  1.01s/it]  8%|▊         | 79/1048 [01:20<16:20,  1.01s/it]  8%|▊         | 80/1048 [01:21<16:19,  1.01s/it]                                                   8%|▊         | 80/1048 [01:21<16:19,  1.01s/it]  8%|▊         | 81/1048 [01:22<16:18,  1.01s/it]  8%|▊         | 82/1048 [01:23<16:16,  1.01s/it]  8%|▊         | 83/1048 [01:24<16:15,  1.01s/it]  8%|▊         | 84/1048 [01:25<16:14,  1.01s/it]  8%|▊         | 85/1048 [01:26<16:13,  1.01s/it]  8%|▊         | 86/1048 [01:27<16:12,  1.01s/it]  8%|▊         | 87/1048 [01:28<16:13,  1.01s/it]  8%|▊         | 88/1048 [01:29<16:11,  1.01s/it]  8%|▊         | 89/1048 [01:30<16:10,  1.01s/it]  9%|▊         | 90/1048 [01:31<16:08,  1.01s/it]                                                   9%|▊         | 90/1048 [01:31<16:08,  1.01s/it]  9%|▊         | 91/1048 [01:32<16:07,  1.01s/it]  9%|▉         | 92/1048 [01:33<16:06,  1.01s/it]  9%|▉         | 93/1048 [01:34<16:05,  1.01s/it]  9%|▉         | 94/1048 [01:35<16:03,  1.01s/it]  9%|▉         | 95/1048 [01:36<16:02,  1.01s/it]  9%|▉         | 96/1048 [01:37<16:01,  1.01s/it]  9%|▉         | 97/1048 [01:38<16:00,  1.01s/it]  9%|▉         | 98/1048 [01:39<15:59,  1.01s/it]  9%|▉         | 99/1048 [01:40<15:58,  1.01s/it] 10%|▉         | 100/1048 [01:41<15:57,  1.01s/it]           {'loss': 8.6561, 'grad_norm': 62.05671691894531, 'learning_rate': 0.00019828244274809162, 'epoch': 0.01}
+{'loss': 3.1045, 'grad_norm': 5.288980484008789, 'learning_rate': 0.00019637404580152672, 'epoch': 0.02}
+{'loss': 1.4562, 'grad_norm': 10.08756160736084, 'learning_rate': 0.00019446564885496184, 'epoch': 0.03}
+{'loss': 1.173, 'grad_norm': 31.014272689819336, 'learning_rate': 0.00019255725190839694, 'epoch': 0.04}
+{'loss': 1.0167, 'grad_norm': 2.302382230758667, 'learning_rate': 0.00019064885496183207, 'epoch': 0.05}
+{'loss': 0.9666, 'grad_norm': 3.584912061691284, 'learning_rate': 0.0001887404580152672, 'epoch': 0.06}
+{'loss': 0.8747, 'grad_norm': 3.394545078277588, 'learning_rate': 0.0001868320610687023, 'epoch': 0.07}
+{'loss': 0.8976, 'grad_norm': 43.02268600463867, 'learning_rate': 0.00018492366412213742, 'epoch': 0.08}
+{'loss': 0.8594, 'grad_norm': 2.1368229389190674, 'learning_rate': 0.00018301526717557254, 'epoch': 0.09}
+{'loss': 0.8687, 'grad_norm': 3.196310043334961, 'learning_rate': 0.00018110687022900764, 'epoch': 0.1}
+                                        10%|▉         | 100/1048 [01:41<15:57,  1.01s/it]
+  0%|          | 0/2940 [00:00<?, ?it/s][A
+  0%|          | 3/2940 [00:00<02:43, 17.92it/s][A
+  0%|          | 5/2940 [00:00<03:24, 14.33it/s][A
+  0%|          | 7/2940 [00:00<03:43, 13.14it/s][A
+  0%|          | 9/2940 [00:00<03:54, 12.51it/s][A
+  0%|          | 11/2940 [00:00<04:01, 12.12it/s][A
+  0%|          | 13/2940 [00:01<04:06, 11.85it/s][A
+  1%|          | 15/2940 [00:01<04:11, 11.65it/s][A
+  1%|          | 17/2940 [00:01<06:26,  7.57it/s][A
+  1%|          | 19/2940 [00:02<06:59,  6.96it/s][A
+  1%|          | 21/2940 [00:02<06:15,  7.77it/s][A
+  1%|          | 22/2940 [00:02<07:27,  6.51it/s][A
+  1%|          | 23/2940 [00:03<11:27,  4.24it/s][A
+  1%|          | 25/2940 [00:03<08:53,  5.46it/s][A
+  1%|          | 27/2940 [00:03<09:58,  4.87it/s][A
+  1%|          | 28/2940 [00:04<12:46,  3.80it/s][A
+  1%|          | 30/2940 [00:04<09:50,  4.92it/s][A
+  1%|          | 31/2940 [00:04<12:29,  3.88it/s][A
+  1%|          | 32/2940 [00:05<13:59,  3.46it/s][A
+  1%|          | 33/2940 [00:05<11:45,  4.12it/s][A
+  1%|          | 34/2940 [00:05<15:18,  3.16it/s][A
+  1%|          | 35/2940 [00:06<14:02,  3.45it/s][A
+  1%|          | 36/2940 [00:06<11:30,  4.21it/s][A
+  1%|▏         | 37/2940 [00:06<16:03,  3.01it/s][A
+  1%|▏         | 38/2940 [00:07<14:47,  3.27it/s][A
+  1%|▏         | 39/2940 [00:07<19:07,  2.53it/s][A
+  1%|▏         | 41/2940 [00:08<18:37,  2.59it/s][A
+  1%|▏         | 42/2940 [00:08<15:19,  3.15it/s][A
+  1%|▏         | 43/2940 [00:08<16:32,  2.92it/s][A
+  1%|▏         | 44/2940 [00:09<15:24,  3.13it/s][A
+  2%|▏         | 45/2940 [00:09<20:30,  2.35it/s][A
+  2%|▏         | 46/2940 [00:09<16:08,  2.99it/s][A
+  2%|▏         | 47/2940 [00:10<21:43,  2.22it/s][A
+  2%|▏         | 48/2940 [00:10<16:55,  2.85it/s][A
+  2%|▏         | 49/2940 [00:11<22:40,  2.12it/s][A
+  2%|▏         | 50/2940 [00:12<22:19,  2.16it/s][A
+  2%|▏         | 51/2940 [00:12<22:12,  2.17it/s][A
+  2%|▏         | 52/2940 [00:12<22:20,  2.16it/s][A
+  2%|▏         | 53/2940 [00:13<22:27,  2.14it/s][A
+  2%|▏         | 54/2940 [00:13<22:39,  2.12it/s][A
+  2%|▏         | 55/2940 [00:14<22:54,  2.10it/s][A
+  2%|▏         | 56/2940 [00:14<23:12,  2.07it/s][A
+  2%|▏         | 57/2940 [00:15<23:30,  2.04it/s][A
+  2%|▏         | 58/2940 [00:15<23:51,  2.01it/s][A
+  2%|▏         | 59/2940 [00:16<24:10,  1.99it/s][A
+  2%|▏         | 60/2940 [00:16<24:31,  1.96it/s][A
+  2%|▏         | 61/2940 [00:17<24:52,  1.93it/s][A
+  2%|▏         | 62/2940 [00:18<25:12,  1.90it/s][A
+  2%|▏         | 63/2940 [00:18<25:34,  1.88it/s][A
+  2%|▏         | 64/2940 [00:19<25:54,  1.85it/s][A
+  2%|▏         | 65/2940 [00:19<26:14,  1.83it/s][A
+  2%|▏         | 66/2940 [00:20<26:36,  1.80it/s][A
+  2%|▏         | 67/2940 [00:20<26:58,  1.78it/s][A
+  2%|▏         | 68/2940 [00:21<27:20,  1.75it/s][A
+  2%|▏         | 69/2940 [00:22<27:42,  1.73it/s][A
+  2%|▏         | 70/2940 [00:22<28:03,  1.70it/s][A
+  2%|▏         | 71/2940 [00:23<28:24,  1.68it/s][A
+  2%|▏         | 72/2940 [00:23<28:44,  1.66it/s][AERROR:__main__:Training failed: CUDA out of memory. Tried to allocate 18.25 GiB. GPU 0 has a total capacity of 39.49 GiB of which 18.01 GiB is free. Including non-PyTorch memory, this process has 21.47 GiB memory in use. Of the allocated memory 20.17 GiB is allocated by PyTorch, and 822.75 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+Traceback (most recent call last):
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 305, in main
+    finetuner.train(
+    ~~~~~~~~~~~~~~~^
+        output_dir=str(output_dir),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        gradient_accumulation_steps=args.gradient_accumulation_steps,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 227, in train
+    trainer.train()
+    ~~~~~~~~~~~~~^^
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer.py", line 2328, in train
+    return inner_training_loop(
+        args=args,
+    ...<2 lines>...
+        ignore_keys_for_eval=ignore_keys_for_eval,
+    )
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer.py", line 2754, in _inner_training_loop
+    self._maybe_log_save_evaluate(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        tr_loss,
+        ^^^^^^^^
+    ...<6 lines>...
+        learning_rate=learning_rate,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer.py", line 3227, in _maybe_log_save_evaluate
+    metrics = self._evaluate(trial, ignore_keys_for_eval)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer.py", line 3176, in _evaluate
+    metrics = self.evaluate(ignore_keys=ignore_keys_for_eval)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer.py", line 4469, in evaluate
+    output = eval_loop(
+        eval_dataloader,
+    ...<5 lines>...
+        metric_key_prefix=metric_key_prefix,
+    )
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer.py", line 4692, in evaluation_loop
+    all_preds.add(logits)
+    ~~~~~~~~~~~~~^^^^^^^^
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer_pt_utils.py", line 315, in add
+    self.tensors = nested_concat(self.tensors, tensors, padding_index=self.padding_index)
+                   ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer_pt_utils.py", line 131, in nested_concat
+    return torch_pad_and_concatenate(tensors, new_tensors, padding_index=padding_index)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer_pt_utils.py", line 89, in torch_pad_and_concatenate
+    return torch.cat((tensor1, tensor2), dim=0)
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 18.25 GiB. GPU 0 has a total capacity of 39.49 GiB of which 18.01 GiB is free. Including non-PyTorch memory, this process has 21.47 GiB memory in use. Of the allocated memory 20.17 GiB is allocated by PyTorch, and 822.75 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+Traceback (most recent call last):
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 320, in <module>
+    main()
+    ~~~~^^
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 305, in main
+    finetuner.train(
+    ~~~~~~~~~~~~~~~^
+        output_dir=str(output_dir),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        gradient_accumulation_steps=args.gradient_accumulation_steps,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 227, in train
+    trainer.train()
+    ~~~~~~~~~~~~~^^
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer.py", line 2328, in train
+    return inner_training_loop(
+        args=args,
+    ...<2 lines>...
+        ignore_keys_for_eval=ignore_keys_for_eval,
+    )
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer.py", line 2754, in _inner_training_loop
+    self._maybe_log_save_evaluate(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        tr_loss,
+        ^^^^^^^^
+    ...<6 lines>...
+        learning_rate=learning_rate,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer.py", line 3227, in _maybe_log_save_evaluate
+    metrics = self._evaluate(trial, ignore_keys_for_eval)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer.py", line 3176, in _evaluate
+    metrics = self.evaluate(ignore_keys=ignore_keys_for_eval)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer.py", line 4469, in evaluate
+    output = eval_loop(
+        eval_dataloader,
+    ...<5 lines>...
+        metric_key_prefix=metric_key_prefix,
+    )
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer.py", line 4692, in evaluation_loop
+    all_preds.add(logits)
+    ~~~~~~~~~~~~~^^^^^^^^
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer_pt_utils.py", line 315, in add
+    self.tensors = nested_concat(self.tensors, tensors, padding_index=self.padding_index)
+                   ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer_pt_utils.py", line 131, in nested_concat
+    return torch_pad_and_concatenate(tensors, new_tensors, padding_index=padding_index)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer_pt_utils.py", line 89, in torch_pad_and_concatenate
+    return torch.cat((tensor1, tensor2), dim=0)
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 18.25 GiB. GPU 0 has a total capacity of 39.49 GiB of which 18.01 GiB is free. Including non-PyTorch memory, this process has 21.47 GiB memory in use. Of the allocated memory 20.17 GiB is allocated by PyTorch, and 822.75 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+[1;34mwandb[0m: 
+[1;34mwandb[0m: 🚀 View run [33mglad-jazz-97[0m at: [34mhttps://wandb.ai/gerbennkoopman-university-of-amsterdam/reptile-meta-learning/runs/rafd1ovq[0m
+[1;34mwandb[0m: Find logs at: [1;35m../../../../gpfs/home6/scur1887/dl4nlp/src/wandb/run-20251008_135848-rafd1ovq/logs[0m
+srun: error: gcn26: task 0: Exited with exit code 1
+srun: Terminating StepId=15197069.0
+INFO:gemma:Using Hugging Face token for authentication.
+INFO:gemma:Loading google/gemma-3-1b-it...
+INFO:accelerate.utils.modeling:We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+INFO:gemma:Gemma model loaded successfully!
+INFO:__main__:Starting LoRA fine-tuning.
+INFO:__main__:Loading train data from /gpfs/home6/scur1887/dl4nlp/datasets/be_uk_en_train.pkl
+trainable params: 3,261,440 || all params: 1,003,147,392 || trainable%: 0.3251
+Map:   0%|          | 0/19518 [00:00<?, ? examples/s]Map:   5%|▌         | 1000/19518 [00:00<00:02, 7826.92 examples/s]Map:  10%|█         | 2000/19518 [00:00<00:02, 8006.47 examples/s]Map:  15%|█▌        | 3000/19518 [00:00<00:02, 8177.47 examples/s]Map:  20%|██        | 4000/19518 [00:00<00:01, 8305.59 examples/s]Map:  26%|██▌       | 5000/19518 [00:00<00:01, 8253.38 examples/s]Map:  31%|███       | 6000/19518 [00:00<00:01, 8296.40 examples/s]Map:  36%|███▌      | 7000/19518 [00:00<00:01, 8300.95 examples/s]Map:  41%|████      | 8000/19518 [00:00<00:01, 8256.90 examples/s]Map:  46%|████▌     | 9000/19518 [00:01<00:01, 8285.81 examples/s]Map:  51%|█████     | 10000/19518 [00:01<00:01, 8069.14 examples/s]Map:  56%|█████▋    | 11000/19518 [00:01<00:01, 8131.28 examples/s]Map:  61%|██████▏   | 12000/19518 [00:01<00:00, 8183.67 examples/s]Map:  67%|██████▋   | 13000/19518 [00:01<00:00, 8242.14 examples/s]Map:  72%|███████▏  | 14000/19518 [00:01<00:00, 8220.87 examples/s]Map:  77%|███████▋  | 15000/19518 [00:01<00:00, 8263.26 examples/s]Map:  82%|████████▏ | 16000/19518 [00:01<00:00, 8297.52 examples/s]Map:  87%|████████▋ | 17000/19518 [00:02<00:00, 8336.66 examples/s]Map:  92%|█████████▏| 18000/19518 [00:02<00:00, 8306.01 examples/s]Map:  97%|█████████▋| 19000/19518 [00:02<00:00, 7963.57 examples/s]Map: 100%|██████████| 19518/19518 [00:02<00:00, 8151.05 examples/s]
+INFO:__main__:Loading dev data from /gpfs/home6/scur1887/dl4nlp/datasets/be_uk_en_dev.pkl
+Map:   0%|          | 0/1482 [00:00<?, ? examples/s]Map:  67%|██████▋   | 1000/1482 [00:00<00:00, 8271.78 examples/s]Map: 100%|██████████| 1482/1482 [00:00<00:00, 8049.55 examples/s]
+/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/pydantic/_internal/_generate_schema.py:2249: UnsupportedFieldAttributeWarning: The 'repr' attribute with value False was provided to the `Field()` function, which has no effect in the context it was used. 'repr' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+  warnings.warn(
+/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/pydantic/_internal/_generate_schema.py:2249: UnsupportedFieldAttributeWarning: The 'frozen' attribute with value True was provided to the `Field()` function, which has no effect in the context it was used. 'frozen' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+  warnings.warn(
+Received unrecognized `WANDB_LOG_MODEL` setting value=epoch; so disabling `WANDB_LOG_MODEL`
+INFO:__main__:Training...
+wandb: Currently logged in as: gerbennkoopman (gerbennkoopman-university-of-amsterdam) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: Tracking run with wandb version 0.22.0
+wandb: Run data is saved locally in /gpfs/home6/scur1887/dl4nlp/src/wandb/run-20251008_140127-xsicoug3
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run polar-universe-98
+wandb: ⭐️ View project at https://wandb.ai/gerbennkoopman-university-of-amsterdam/reptile-meta-learning
+wandb: 🚀 View run at https://wandb.ai/gerbennkoopman-university-of-amsterdam/reptile-meta-learning/runs/xsicoug3
+  0%|          | 0/610 [00:00<?, ?it/s]  0%|          | 1/610 [00:01<13:17,  1.31s/it]  0%|          | 2/610 [00:02<11:29,  1.13s/it]  0%|          | 3/610 [00:03<10:53,  1.08s/it]  1%|          | 4/610 [00:04<10:35,  1.05s/it]  1%|          | 5/610 [00:05<10:25,  1.03s/it]  1%|          | 6/610 [00:06<10:18,  1.02s/it]  1%|          | 7/610 [00:07<10:13,  1.02s/it]  1%|▏         | 8/610 [00:08<10:10,  1.01s/it]  1%|▏         | 9/610 [00:09<10:07,  1.01s/it]  2%|▏         | 10/610 [00:10<10:05,  1.01s/it]                                                  2%|▏         | 10/610 [00:10<10:05,  1.01s/it]  2%|▏         | 11/610 [00:11<10:04,  1.01s/it]  2%|▏         | 12/610 [00:12<10:02,  1.01s/it]  2%|▏         | 13/610 [00:13<10:01,  1.01s/it]  2%|▏         | 14/610 [00:14<10:00,  1.01s/it]  2%|▏         | 15/610 [00:15<09:59,  1.01s/it]  3%|▎         | 16/610 [00:16<09:58,  1.01s/it]  3%|▎         | 17/610 [00:17<09:57,  1.01s/it]  3%|▎         | 18/610 [00:18<09:55,  1.01s/it]  3%|▎         | 19/610 [00:19<09:54,  1.01s/it]  3%|▎         | 20/610 [00:20<09:53,  1.01s/it]                                                  3%|▎         | 20/610 [00:20<09:53,  1.01s/it]  3%|▎         | 21/610 [00:21<09:52,  1.01s/it]  4%|▎         | 22/610 [00:22<09:51,  1.01s/it]  4%|▍         | 23/610 [00:23<09:50,  1.01s/it]  4%|▍         | 24/610 [00:24<09:49,  1.01s/it]  4%|▍         | 25/610 [00:25<09:48,  1.01s/it]  4%|▍         | 26/610 [00:26<09:47,  1.01s/it]  4%|▍         | 27/610 [00:27<09:46,  1.01s/it]  5%|▍         | 28/610 [00:28<09:45,  1.01s/it]  5%|▍         | 29/610 [00:29<09:45,  1.01s/it]  5%|▍         | 30/610 [00:30<09:44,  1.01s/it]                                                  5%|▍         | 30/610 [00:30<09:44,  1.01s/it]  5%|▌         | 31/610 [00:31<09:43,  1.01s/it]  5%|▌         | 32/610 [00:32<09:42,  1.01s/it]  5%|▌         | 33/610 [00:33<09:41,  1.01s/it]  6%|▌         | 34/610 [00:34<09:40,  1.01s/it]  6%|▌         | 35/610 [00:35<09:39,  1.01s/it]  6%|▌         | 36/610 [00:36<09:38,  1.01s/it]  6%|▌         | 37/610 [00:37<09:36,  1.01s/it]  6%|▌         | 38/610 [00:38<09:36,  1.01s/it]  6%|▋         | 39/610 [00:39<09:35,  1.01s/it]  7%|▋         | 40/610 [00:40<09:34,  1.01s/it]                                                  7%|▋         | 40/610 [00:40<09:34,  1.01s/it]  7%|▋         | 41/610 [00:41<09:33,  1.01s/it]  7%|▋         | 42/610 [00:42<09:32,  1.01s/it]  7%|▋         | 43/610 [00:43<09:31,  1.01s/it]  7%|▋         | 44/610 [00:44<09:30,  1.01s/it]  7%|▋         | 45/610 [00:45<09:29,  1.01s/it]  8%|▊         | 46/610 [00:46<09:27,  1.01s/it]  8%|▊         | 47/610 [00:47<09:26,  1.01s/it]  8%|▊         | 48/610 [00:48<09:27,  1.01s/it]  8%|▊         | 49/610 [00:49<09:25,  1.01s/it]  8%|▊         | 50/610 [00:50<09:24,  1.01s/it]                                                  8%|▊         | 50/610 [00:50<09:24,  1.01s/it]  8%|▊         | 51/610 [00:51<09:23,  1.01s/it]  9%|▊         | 52/610 [00:52<09:21,  1.01s/it]  9%|▊         | 53/610 [00:53<09:20,  1.01s/it]  9%|▉         | 54/610 [00:54<09:19,  1.01s/it]  9%|▉         | 55/610 [00:55<09:18,  1.01s/it]  9%|▉         | 56/610 [00:56<09:17,  1.01s/it]  9%|▉         | 57/610 [00:57<09:16,  1.01s/it] 10%|▉         | 58/610 [00:58<09:15,  1.01s/it] 10%|▉         | 59/610 [00:59<09:14,  1.01s/it] 10%|▉         | 60/610 [01:00<09:14,  1.01s/it]                                                 10%|▉         | 60/610 [01:00<09:14,  1.01s/it] 10%|█         | 61/610 [01:01<09:13,  1.01s/it] 10%|█         | 62/610 [01:02<09:12,  1.01s/it] 10%|█         | 63/610 [01:03<09:10,  1.01s/it] 10%|█         | 64/610 [01:04<09:09,  1.01s/it] 11%|█         | 65/610 [01:05<09:08,  1.01s/it] 11%|█         | 66/610 [01:06<09:07,  1.01s/it] 11%|█         | 67/610 [01:07<09:06,  1.01s/it] 11%|█         | 68/610 [01:08<09:05,  1.01s/it] 11%|█▏        | 69/610 [01:09<09:04,  1.01s/it] 11%|█▏        | 70/610 [01:10<09:03,  1.01s/it]                                                 11%|█▏        | 70/610 [01:10<09:03,  1.01s/it] 12%|█▏        | 71/610 [01:11<09:02,  1.01s/it] 12%|█▏        | 72/610 [01:12<09:01,  1.01s/it] 12%|█▏        | 73/610 [01:13<09:00,  1.01s/it] 12%|█▏        | 74/610 [01:14<08:59,  1.01s/it] 12%|█▏        | 75/610 [01:15<08:58,  1.01s/it] 12%|█▏        | 76/610 [01:16<08:57,  1.01s/it] 13%|█▎        | 77/610 [01:17<08:56,  1.01s/it] 13%|█▎        | 78/610 [01:18<08:54,  1.01s/it] 13%|█▎        | 79/610 [01:19<08:54,  1.01s/it] 13%|█▎        | 80/610 [01:20<08:53,  1.01s/it]                                                 13%|█▎        | 80/610 [01:20<08:53,  1.01s/it] 13%|█▎        | 81/610 [01:21<08:52,  1.01s/it] 13%|█▎        | 82/610 [01:22<08:50,  1.01s/it] 14%|█▎        | 83/610 [01:23<08:49,  1.01s/it] 14%|█▍        | 84/610 [01:24<08:48,  1.00s/it] 14%|█▍        | 85/610 [01:25<08:47,  1.01s/it] 14%|█▍        | 86/610 [01:26<08:46,  1.01s/it] 14%|█▍        | 87/610 [01:27<08:45,  1.01s/it] 14%|█▍        | 88/610 [01:28<08:44,  1.01s/it] 15%|█▍        | 89/610 [01:29<08:44,  1.01s/it] 15%|█▍        | 90/610 [01:30<08:47,  1.01s/it]                                                 15%|█▍        | 90/610 [01:30<08:47,  1.01s/it] 15%|█▍        | 91/610 [01:31<08:45,  1.01s/it] 15%|█▌        | 92/610 [01:32<08:43,  1.01s/it] 15%|█▌        | 93/610 [01:33<08:41,  1.01s/it] 15%|█▌        | 94/610 [01:34<08:39,  1.01s/it] 16%|█▌        | 95/610 [01:35<08:38,  1.01s/it] 16%|█▌        | 96/610 [01:36<08:37,  1.01s/it] 16%|█▌        | 97/610 [01:37<08:36,  1.01s/it] 16%|█▌        | 98/610 [01:38<08:35,  1.01s/it] 16%|█▌        | 99/610 [01:39<08:34,  1.01s/it] 16%|█▋        | 100/610 [01:40<08:32,  1.01s/it]                                              {'loss': 8.3453, 'grad_norm': 37.85140609741211, 'learning_rate': 0.00019704918032786885, 'epoch': 0.02}
+{'loss': 3.0993, 'grad_norm': 662.1963500976562, 'learning_rate': 0.00019377049180327872, 'epoch': 0.03}
+{'loss': 1.5306, 'grad_norm': 244.9474334716797, 'learning_rate': 0.00019049180327868854, 'epoch': 0.05}
+{'loss': 1.2849, 'grad_norm': 140.15956115722656, 'learning_rate': 0.00018721311475409838, 'epoch': 0.07}
+{'loss': 1.0105, 'grad_norm': 253.99398803710938, 'learning_rate': 0.0001839344262295082, 'epoch': 0.08}
+{'loss': 1.1057, 'grad_norm': 11.602106094360352, 'learning_rate': 0.00018065573770491804, 'epoch': 0.1}
+{'loss': 0.8809, 'grad_norm': 7.058773994445801, 'learning_rate': 0.00017737704918032788, 'epoch': 0.11}
+{'loss': 0.9243, 'grad_norm': 9.553181648254395, 'learning_rate': 0.0001740983606557377, 'epoch': 0.13}
+{'loss': 0.8222, 'grad_norm': 1.9354612827301025, 'learning_rate': 0.00017081967213114757, 'epoch': 0.15}
+{'loss': 0.8403, 'grad_norm': 3.580705165863037, 'learning_rate': 0.00016754098360655738, 'epoch': 0.16}
+    16%|█▋        | 100/610 [01:40<08:32,  1.01s/it]
+  0%|          | 0/1482 [00:00<?, ?it/s][A
+  0%|          | 3/1482 [00:00<01:21, 18.05it/s][A
+  0%|          | 5/1482 [00:00<01:42, 14.46it/s][A
+  0%|          | 7/1482 [00:00<01:51, 13.24it/s][A
+  1%|          | 9/1482 [00:00<01:56, 12.62it/s][A
+  1%|          | 11/1482 [00:00<02:00, 12.24it/s][A
+  1%|          | 13/1482 [00:01<02:02, 11.96it/s][A
+  1%|          | 15/1482 [00:01<02:04, 11.75it/s][A
+  1%|          | 17/1482 [00:01<03:12,  7.61it/s][A
+  1%|▏         | 19/1482 [00:02<03:29,  6.97it/s][A
+  1%|▏         | 21/1482 [00:02<03:07,  7.81it/s][A
+  1%|▏         | 22/1482 [00:02<03:43,  6.54it/s][A
+  2%|▏         | 23/1482 [00:03<05:42,  4.26it/s][A
+  2%|▏         | 25/1482 [00:03<04:25,  5.49it/s][A
+  2%|▏         | 27/1482 [00:03<04:57,  4.89it/s][A
+  2%|▏         | 28/1482 [00:04<06:21,  3.81it/s][A
+  2%|▏         | 30/1482 [00:04<04:53,  4.94it/s][A
+  2%|▏         | 31/1482 [00:04<06:12,  3.89it/s][A
+  2%|▏         | 32/1482 [00:05<06:57,  3.47it/s][A
+  2%|▏         | 34/1482 [00:05<07:11,  3.36it/s][A
+  2%|▏         | 35/1482 [00:06<06:45,  3.56it/s][A
+  2%|▏         | 36/1482 [00:06<05:43,  4.21it/s][A
+  2%|▏         | 37/1482 [00:06<07:44,  3.11it/s][A
+  3%|▎         | 38/1482 [00:06<07:13,  3.33it/s][A
+  3%|▎         | 39/1482 [00:07<09:17,  2.59it/s][A
+  3%|▎         | 41/1482 [00:08<09:07,  2.63it/s][A
+  3%|▎         | 42/1482 [00:08<07:32,  3.18it/s][A
+  3%|▎         | 43/1482 [00:08<08:08,  2.94it/s][A
+  3%|▎         | 44/1482 [00:09<07:36,  3.15it/s][A
+  3%|▎         | 45/1482 [00:09<10:07,  2.37it/s][A
+  3%|▎         | 46/1482 [00:09<07:58,  3.00it/s][A
+  3%|▎         | 47/1482 [00:10<10:43,  2.23it/s][A
+  3%|▎         | 48/1482 [00:10<08:20,  2.86it/s][A
+  3%|▎         | 49/1482 [00:11<11:11,  2.13it/s][A
+  3%|▎         | 50/1482 [00:11<11:00,  2.17it/s][A
+  3%|▎         | 51/1482 [00:12<10:57,  2.18it/s][A
+  4%|▎         | 52/1482 [00:12<11:06,  2.14it/s][A
+  4%|▎         | 53/1482 [00:13<11:08,  2.14it/s][A
+  4%|▎         | 54/1482 [00:13<11:13,  2.12it/s][A
+  4%|▎         | 55/1482 [00:14<11:19,  2.10it/s][A
+  4%|▍         | 56/1482 [00:14<11:27,  2.07it/s][A
+  4%|▍         | 57/1482 [00:15<11:36,  2.05it/s][A
+  4%|▍         | 58/1482 [00:15<11:45,  2.02it/s][A
+  4%|▍         | 59/1482 [00:16<11:54,  1.99it/s][A
+  4%|▍         | 60/1482 [00:16<12:04,  1.96it/s][A
+  4%|▍         | 61/1482 [00:17<12:14,  1.93it/s][A
+  4%|▍         | 62/1482 [00:17<12:24,  1.91it/s][A
+  4%|▍         | 63/1482 [00:18<12:34,  1.88it/s][A
+  4%|▍         | 64/1482 [00:19<12:44,  1.86it/s][A
+  4%|▍         | 65/1482 [00:19<12:54,  1.83it/s][A
+  4%|▍         | 66/1482 [00:20<13:05,  1.80it/s][A
+  5%|▍         | 67/1482 [00:20<13:15,  1.78it/s][A
+  5%|▍         | 68/1482 [00:21<13:25,  1.75it/s][A
+  5%|▍         | 69/1482 [00:21<13:35,  1.73it/s][A
+  5%|▍         | 70/1482 [00:22<13:46,  1.71it/s][A
+  5%|▍         | 71/1482 [00:23<13:56,  1.69it/s][A
+  5%|▍         | 72/1482 [00:23<14:06,  1.67it/s][AERROR:__main__:Training failed: CUDA out of memory. Tried to allocate 18.25 GiB. GPU 0 has a total capacity of 39.49 GiB of which 18.01 GiB is free. Including non-PyTorch memory, this process has 21.47 GiB memory in use. Of the allocated memory 20.17 GiB is allocated by PyTorch, and 822.75 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+Traceback (most recent call last):
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 305, in main
+    finetuner.train(
+    ~~~~~~~~~~~~~~~^
+        output_dir=str(output_dir),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        gradient_accumulation_steps=args.gradient_accumulation_steps,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 227, in train
+    trainer.train()
+    ~~~~~~~~~~~~~^^
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer.py", line 2328, in train
+    return inner_training_loop(
+        args=args,
+    ...<2 lines>...
+        ignore_keys_for_eval=ignore_keys_for_eval,
+    )
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer.py", line 2754, in _inner_training_loop
+    self._maybe_log_save_evaluate(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        tr_loss,
+        ^^^^^^^^
+    ...<6 lines>...
+        learning_rate=learning_rate,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer.py", line 3227, in _maybe_log_save_evaluate
+    metrics = self._evaluate(trial, ignore_keys_for_eval)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer.py", line 3176, in _evaluate
+    metrics = self.evaluate(ignore_keys=ignore_keys_for_eval)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer.py", line 4469, in evaluate
+    output = eval_loop(
+        eval_dataloader,
+    ...<5 lines>...
+        metric_key_prefix=metric_key_prefix,
+    )
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer.py", line 4692, in evaluation_loop
+    all_preds.add(logits)
+    ~~~~~~~~~~~~~^^^^^^^^
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer_pt_utils.py", line 315, in add
+    self.tensors = nested_concat(self.tensors, tensors, padding_index=self.padding_index)
+                   ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer_pt_utils.py", line 131, in nested_concat
+    return torch_pad_and_concatenate(tensors, new_tensors, padding_index=padding_index)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer_pt_utils.py", line 89, in torch_pad_and_concatenate
+    return torch.cat((tensor1, tensor2), dim=0)
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 18.25 GiB. GPU 0 has a total capacity of 39.49 GiB of which 18.01 GiB is free. Including non-PyTorch memory, this process has 21.47 GiB memory in use. Of the allocated memory 20.17 GiB is allocated by PyTorch, and 822.75 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+Traceback (most recent call last):
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 320, in <module>
+    main()
+    ~~~~^^
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 305, in main
+    finetuner.train(
+    ~~~~~~~~~~~~~~~^
+        output_dir=str(output_dir),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        gradient_accumulation_steps=args.gradient_accumulation_steps,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 227, in train
+    trainer.train()
+    ~~~~~~~~~~~~~^^
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer.py", line 2328, in train
+    return inner_training_loop(
+        args=args,
+    ...<2 lines>...
+        ignore_keys_for_eval=ignore_keys_for_eval,
+    )
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer.py", line 2754, in _inner_training_loop
+    self._maybe_log_save_evaluate(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        tr_loss,
+        ^^^^^^^^
+    ...<6 lines>...
+        learning_rate=learning_rate,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer.py", line 3227, in _maybe_log_save_evaluate
+    metrics = self._evaluate(trial, ignore_keys_for_eval)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer.py", line 3176, in _evaluate
+    metrics = self.evaluate(ignore_keys=ignore_keys_for_eval)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer.py", line 4469, in evaluate
+    output = eval_loop(
+        eval_dataloader,
+    ...<5 lines>...
+        metric_key_prefix=metric_key_prefix,
+    )
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer.py", line 4692, in evaluation_loop
+    all_preds.add(logits)
+    ~~~~~~~~~~~~~^^^^^^^^
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer_pt_utils.py", line 315, in add
+    self.tensors = nested_concat(self.tensors, tensors, padding_index=self.padding_index)
+                   ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer_pt_utils.py", line 131, in nested_concat
+    return torch_pad_and_concatenate(tensors, new_tensors, padding_index=padding_index)
+  File "/home/scur1887/.conda/envs/dl4nlp/lib/python3.13/site-packages/transformers/trainer_pt_utils.py", line 89, in torch_pad_and_concatenate
+    return torch.cat((tensor1, tensor2), dim=0)
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 18.25 GiB. GPU 0 has a total capacity of 39.49 GiB of which 18.01 GiB is free. Including non-PyTorch memory, this process has 21.47 GiB memory in use. Of the allocated memory 20.17 GiB is allocated by PyTorch, and 822.75 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+[1;34mwandb[0m: 
+[1;34mwandb[0m: 🚀 View run [33mpolar-universe-98[0m at: [34mhttps://wandb.ai/gerbennkoopman-university-of-amsterdam/reptile-meta-learning/runs/xsicoug3[0m
+[1;34mwandb[0m: Find logs at: [1;35m../../../../gpfs/home6/scur1887/dl4nlp/src/wandb/run-20251008_140127-xsicoug3/logs[0m
+srun: error: gcn26: task 0: Exited with exit code 1
+srun: Terminating StepId=15197069.1
+
+JOB STATISTICS
+==============
+Job ID: 15197069
+Cluster: snellius
+User/Group: scur1887/scur1887
+State: FAILED (exit code 1)
+Nodes: 1
+Cores per node: 18
+CPU Utilized: 00:00:01
+CPU Efficiency: 0.02% of 01:41:06 core-walltime
+Job Wall-clock time: 00:05:37
+Memory Utilized: 7.39 GB
+Memory Efficiency: 6.16% of 120.00 GB (120.00 GB/node)

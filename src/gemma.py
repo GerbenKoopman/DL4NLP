@@ -6,6 +6,7 @@ Handles translation tasks using Gemma-3-1B-IT with proper prompting
 import torch
 import os
 from transformers import AutoTokenizer, AutoModelForCausalLM
+from peft import LoraConfig, get_peft_model
 from typing import List, Dict, Optional
 import logging
 
@@ -21,9 +22,12 @@ class GemmaTranslationModel:
         model_name: str = "google/gemma-3-1b-it",
         device: Optional[str] = None,
         token: Optional[str] = None,
+        use_lora: bool = False,
     ):
         self.model_name = model_name
         self.token = token
+        self.use_lora = use_lora
+
         # Optimize for Mac M4 - prefer MPS, fallback to CPU
         if device is None:
             if torch.backends.mps.is_available():
@@ -66,6 +70,34 @@ class GemmaTranslationModel:
 
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, token=token)
 
+            if self.use_lora:
+                # Common LoRA configuration
+                lora_config = LoraConfig(
+                    r=4,
+                    lora_alpha=4,
+                    target_modules=[
+                        "q_proj",
+                        "k_proj",
+                        "v_proj",
+                        "o_proj",
+                        "gate_proj",
+                        "up_proj",
+                        "down_proj",
+                    ],
+                    lora_dropout=0.05,
+                    task_type="CAUSAL_LM",
+                )
+
+                if self.device == "mps":
+                    # Use float32 on MPS for stability with LoRA/PEFT
+                    model_dtype = torch.float32
+                    device_map = None
+                elif self.device == "cuda":
+                    model_dtype = torch.bfloat16
+                    device_map = "auto"
+                else:
+                    model_dtype = torch.float32
+                    device_map = None
             # Optimize dtype and loading for different devices and Gemma 3
             if self.device == "mps":
                 # MPS-optimized loading for Gemma 3
@@ -78,19 +110,58 @@ class GemmaTranslationModel:
                 model_dtype = torch.float32
                 device_map = None
 
-            # Load model with proper configuration for Gemma 3
-            self.model = AutoModelForCausalLM.from_pretrained(
-                self.model_name,
-                device_map=device_map,
-                dtype=model_dtype,
-                attn_implementation="eager",  # Use eager attention to avoid issues
-                low_cpu_mem_usage=True,
-                token=token,
-                trust_remote_code=True,
-            )
+                self.model = AutoModelForCausalLM.from_pretrained(
+                    self.model_name,
+                    device_map=device_map,
+                    dtype=model_dtype,
+                    attn_implementation="eager",
+                    low_cpu_mem_usage=True,
+                    token=token,
+                    trust_remote_code=True,
+                )
 
-            # Set model to eval mode
-            self.model.eval()
+                self.model = get_peft_model(self.model, lora_config)
+                self.model.print_trainable_parameters()
+
+                # MPS stability tweaks: disable grad checkpointing and cache
+                if self.device == "mps":
+                    if hasattr(self.model, "gradient_checkpointing_disable"):
+                        self.model.gradient_checkpointing_disable()
+                    # Some PEFT models expose base model under different attrs; guard accordingly
+                    try:
+                        self.model.config.use_cache = False
+                    except Exception:
+                        pass
+                    logger.info(
+                        "MPS: using float32, gradient checkpointing disabled, use_cache=False"
+                    )
+
+            else:
+                # Standard model loading without LoRA
+                if self.device == "mps":
+                    # Use float32 on MPS for inference stability too
+                    model_dtype = torch.float32
+                    device_map = None
+                elif self.device == "cuda":
+                    model_dtype = torch.bfloat16
+                    device_map = "auto"
+                else:
+                    model_dtype = torch.float32
+                    device_map = None
+
+                self.model = AutoModelForCausalLM.from_pretrained(
+                    self.model_name,
+                    device_map=device_map,
+                    dtype=model_dtype,
+                    attn_implementation="eager",
+                    low_cpu_mem_usage=True,
+                    token=token,
+                    trust_remote_code=True,
+                )
+
+            # Set model to eval mode unless we are training
+            if not self.use_lora:
+                self.model.eval()
 
             if self.device in {"mps", "cuda"}:
                 self.model.to(self.device)

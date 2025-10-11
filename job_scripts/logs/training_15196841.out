@@ -1,0 +1,128 @@
+============================================================================================== 
+Warning! Mixing Conda and module environments may lead to corruption of the
+user environment. 
+We do not recommend users mixing those two environments unless absolutely
+necessary. Note that 
+SURF does not provide any support for Conda environment.
+For more information, please refer to our software policy page:
+https://servicedesk.surf.nl/wiki/display/WIKI/Software+policy+Snellius#SoftwarepolicySnellius-UseofAnacondaandMinicondaenvironmentsonSnellius 
+
+Remember that many packages have already been installed on the system and can
+be loaded using 
+the 'module load <package__name>' command. If you are uncertain if a package is
+already available 
+on the system, please use 'module avail' or 'module spider' to search for it.
+============================================================================================== 
+WARNING:gemma:No HUGGINGFACE_HUB_TOKEN found. Model loading may fail if the model is private.
+INFO:gemma:Loading google/gemma-3-1b-it...
+ERROR:gemma:Failed to load Gemma model: You are trying to access a gated repo.
+Make sure to have access to it at https://huggingface.co/google/gemma-3-1b-it.
+401 Client Error. (Request ID: Root=1-68e64dbe-026fde0543307b463419aff4;01c83bd7-00cc-4833-b32f-51d3f06a9ffd)
+
+Cannot access gated repo for url https://huggingface.co/google/gemma-3-1b-it/resolve/main/config.json.
+Access to model google/gemma-3-1b-it is restricted. You must have access to it and be authenticated to access it. Please log in.
+Downloading builder script: 0.00B [00:00, ?B/s]Downloading builder script: 9.01kB [00:00, 26.8MB/s]
+Downloading builder script: 0.00B [00:00, ?B/s]Downloading builder script: 8.15kB [00:00, 30.0MB/s]
+INFO:__main__:Starting LoRA fine-tuning.
+WARNING:__main__:Data file not found: /gpfs/home6/scur1887/dl4nlp/datasets/az_tr_en_train.pkl. Skipping.
+ERROR:__main__:Training failed: No train data could be loaded.
+Traceback (most recent call last):
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 305, in main
+    finetuner.train(
+    ~~~~~~~~~~~~~~~^
+        output_dir=str(output_dir),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        gradient_accumulation_steps=args.gradient_accumulation_steps,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 176, in train
+    train_dataset = self._load_and_prepare_data("train")
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 87, in _load_and_prepare_data
+    raise FileNotFoundError(f"No {split} data could be loaded.")
+FileNotFoundError: No train data could be loaded.
+Traceback (most recent call last):
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 320, in <module>
+    main()
+    ~~~~^^
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 305, in main
+    finetuner.train(
+    ~~~~~~~~~~~~~~~^
+        output_dir=str(output_dir),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        gradient_accumulation_steps=args.gradient_accumulation_steps,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 176, in train
+    train_dataset = self._load_and_prepare_data("train")
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 87, in _load_and_prepare_data
+    raise FileNotFoundError(f"No {split} data could be loaded.")
+FileNotFoundError: No train data could be loaded.
+srun: error: gcn15: task 0: Exited with exit code 1
+srun: Terminating StepId=15196841.0
+WARNING:gemma:No HUGGINGFACE_HUB_TOKEN found. Model loading may fail if the model is private.
+INFO:gemma:Loading google/gemma-3-1b-it...
+ERROR:gemma:Failed to load Gemma model: You are trying to access a gated repo.
+Make sure to have access to it at https://huggingface.co/google/gemma-3-1b-it.
+401 Client Error. (Request ID: Root=1-68e64dc7-54f7542e73dfe6f172083c2c;79aa161f-826f-44c1-8b4f-d17a1c673f80)
+
+Cannot access gated repo for url https://huggingface.co/google/gemma-3-1b-it/resolve/main/config.json.
+Access to model google/gemma-3-1b-it is restricted. You must have access to it and be authenticated to access it. Please log in.
+INFO:__main__:Starting LoRA fine-tuning.
+WARNING:__main__:Data file not found: /gpfs/home6/scur1887/dl4nlp/datasets/be_uk_en_train.pkl. Skipping.
+ERROR:__main__:Training failed: No train data could be loaded.
+Traceback (most recent call last):
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 305, in main
+    finetuner.train(
+    ~~~~~~~~~~~~~~~^
+        output_dir=str(output_dir),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        gradient_accumulation_steps=args.gradient_accumulation_steps,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 176, in train
+    train_dataset = self._load_and_prepare_data("train")
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 87, in _load_and_prepare_data
+    raise FileNotFoundError(f"No {split} data could be loaded.")
+FileNotFoundError: No train data could be loaded.
+Traceback (most recent call last):
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 320, in <module>
+    main()
+    ~~~~^^
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 305, in main
+    finetuner.train(
+    ~~~~~~~~~~~~~~~^
+        output_dir=str(output_dir),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        gradient_accumulation_steps=args.gradient_accumulation_steps,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 176, in train
+    train_dataset = self._load_and_prepare_data("train")
+  File "/gpfs/home6/scur1887/dl4nlp/src/train_lora.py", line 87, in _load_and_prepare_data
+    raise FileNotFoundError(f"No {split} data could be loaded.")
+FileNotFoundError: No train data could be loaded.
+srun: error: gcn15: task 0: Exited with exit code 1
+srun: Terminating StepId=15196841.1
+
+JOB STATISTICS
+==============
+Job ID: 15196841
+Cluster: snellius
+User/Group: scur1887/scur1887
+State: RUNNING
+Nodes: 1
+Cores per node: 18
+CPU Utilized: 00:00:00
+CPU Efficiency: 0.00% of 00:09:54 core-walltime
+Job Wall-clock time: 00:00:33
+Memory Utilized: 3.79 MB
+Memory Efficiency: 0.00% of 120.00 GB (120.00 GB/node)
+WARNING: Efficiency statistics can only be obtained after the job has ended as seff tool is based on the accounting database data.

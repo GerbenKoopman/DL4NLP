@@ -1,0 +1,41 @@
+============================================================================================== 
+Warning! Mixing Conda and module environments may lead to corruption of the
+user environment. 
+We do not recommend users mixing those two environments unless absolutely
+necessary. Note that 
+SURF does not provide any support for Conda environment.
+For more information, please refer to our software policy page:
+https://servicedesk.surf.nl/wiki/display/WIKI/Software+policy+Snellius#SoftwarepolicySnellius-UseofAnacondaandMinicondaenvironmentsonSnellius 
+
+Remember that many packages have already been installed on the system and can
+be loaded using 
+the 'module load <package__name>' command. If you are uncertain if a package is
+already available 
+on the system, please use 'module avail' or 'module spider' to search for it.
+============================================================================================== 
+
+CondaToSNonInteractiveError: Terms of Service have not been accepted for the following channels. Please accept or remove them before proceeding:
+    • https://repo.anaconda.com/pkgs/main
+    • https://repo.anaconda.com/pkgs/r
+
+To accept a channel's Terms of Service, run the following and replace `CHANNEL` with the channel name/URL:
+    ‣ conda tos accept --override-channels --channel CHANNEL
+
+To remove channels with rejected Terms of Service, run the following and replace `CHANNEL` with the channel name/URL:
+    ‣ conda config --remove channels CHANNEL
+
+
+JOB STATISTICS
+==============
+Job ID: 15195302
+Cluster: snellius
+User/Group: scur1887/scur1887
+State: RUNNING
+Nodes: 1
+Cores per node: 18
+CPU Utilized: 00:00:00
+CPU Efficiency: 0.00% of 00:04:30 core-walltime
+Job Wall-clock time: 00:00:15
+Memory Utilized: 0.00 MB
+Memory Efficiency: 0.00% of 120.00 GB (120.00 GB/node)
+WARNING: Efficiency statistics can only be obtained after the job has ended as seff tool is based on the accounting database data.

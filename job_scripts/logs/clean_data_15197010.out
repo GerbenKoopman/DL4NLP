@@ -1,0 +1,45 @@
+============================================================================================== 
+Warning! Mixing Conda and module environments may lead to corruption of the
+user environment. 
+We do not recommend users mixing those two environments unless absolutely
+necessary. Note that 
+SURF does not provide any support for Conda environment.
+For more information, please refer to our software policy page:
+https://servicedesk.surf.nl/wiki/display/WIKI/Software+policy+Snellius#SoftwarepolicySnellius-UseofAnacondaandMinicondaenvironmentsonSnellius 
+
+Remember that many packages have already been installed on the system and can
+be loaded using 
+the 'module load <package__name>' command. If you are uncertain if a package is
+already available 
+on the system, please use 'module avail' or 'module spider' to search for it.
+============================================================================================== 
+INFO:__main__:Loading train split from /gpfs/home6/scur1887/dl4nlp/datasets/all_talks_train.tsv
+INFO:__main__:Original size: 258098 rows
+INFO:__main__:Cleaned size: 8583 rows (249515 removed)
+INFO:__main__:Saved 5585 rows to /gpfs/home6/scur1887/dl4nlp/datasets/az_tr_en_train.pkl
+INFO:__main__:Saved 3253 rows to /gpfs/home6/scur1887/dl4nlp/datasets/be_uk_en_train.pkl
+INFO:__main__:Loading dev split from /gpfs/home6/scur1887/dl4nlp/datasets/all_talks_dev.tsv
+INFO:__main__:Original size: 6049 rows
+INFO:__main__:Cleaned size: 714 rows (5335 removed)
+INFO:__main__:Saved 490 rows to /gpfs/home6/scur1887/dl4nlp/datasets/az_tr_en_dev.pkl
+INFO:__main__:Saved 247 rows to /gpfs/home6/scur1887/dl4nlp/datasets/be_uk_en_dev.pkl
+INFO:__main__:Loading test split from /gpfs/home6/scur1887/dl4nlp/datasets/all_talks_test.tsv
+INFO:__main__:Original size: 7213 rows
+INFO:__main__:Cleaned size: 1071 rows (6142 removed)
+INFO:__main__:Saved 811 rows to /gpfs/home6/scur1887/dl4nlp/datasets/az_tr_en_test.pkl
+INFO:__main__:Saved 272 rows to /gpfs/home6/scur1887/dl4nlp/datasets/be_uk_en_test.pkl
+INFO:__main__:Completed processing all splits
+
+JOB STATISTICS
+==============
+Job ID: 15197010
+Cluster: snellius
+User/Group: scur1887/scur1887
+State: COMPLETED (exit code 0)
+Nodes: 1
+Cores per node: 18
+CPU Utilized: 00:00:01
+CPU Efficiency: 0.19% of 00:09:00 core-walltime
+Job Wall-clock time: 00:00:30
+Memory Utilized: 7.72 MB
+Memory Efficiency: 0.01% of 120.00 GB (120.00 GB/node)
