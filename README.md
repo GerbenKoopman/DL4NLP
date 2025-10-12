@@ -19,6 +19,7 @@ We use the [TED Talks multilingual corpus](http://aclweb.org/anthology/N18-2084)
 ### Technologies
 
 We use **LoRA (Low-Rank Adaptation)** for efficient fine-tuning of Gemma-3 models:
+
 - **Models**: Gemma-3 variants - 270M and 1B instruction-tuned (`google/gemma-3-*-it`)
 - **Fine-tuning**: LoRA adapters with parameter-efficient updates
 - **Monitoring**: Weights & Biases (wandb) integration for training metrics (BLEU, chrF)
@@ -30,12 +31,14 @@ We use **LoRA (Low-Rank Adaptation)** for efficient fine-tuning of Gemma-3 model
 ## Setup & Environment
 
 1. **Create environment:**
+
 ```bash
 conda env create -f environment.yml
 conda activate dl4nlp
 ```
 
 2. **Set up environment variables** (create `.env` file in project root):
+
 ```bash
 WANDB_API_KEY=your_wandb_api_key_here
 WANDB_PROJECT=lora-finetuning
@@ -44,7 +47,7 @@ HUGGINGFACE_HUB_TOKEN=your_hf_token_here
 
 ## Quick Start Guide
 
-### Basic Workflow:
+### Basic Workflow
 
 ```bash
 # 1. Navigate to src directory
@@ -63,7 +66,7 @@ python train_lora.py --model 1b --epochs 3 --train_pair_policy base --eval_pair_
 # Results saved to results/lora_base_to_target_1b_5e/lora_1b/
 ```
 
-### Advanced Training Options:
+### Advanced Training Options
 
 ```bash
 # Train with specific language groups and parameters
@@ -105,6 +108,7 @@ python baseline_eval.py \
 ## Key Features
 
 ✅ **Implemented:**
+
 - LoRA fine-tuning with parameter-efficient updates
 - Transfer learning from base pairs (az↔en, be↔en) to target pairs (az↔tr, be↔uk)
 - Weights & Biases integration with BLEU/chrF metrics logging  
@@ -116,28 +120,32 @@ python baseline_eval.py \
 ## Experimental Setup
 
 ### Language Triads
+
 - **Turkic family**: `az_tr_en` (Azerbaijani–Turkish–English)
 - **Slavic family**: `be_uk_en` (Belarusian–Ukrainian–English)
 
 ### Training Strategy
+
 - **Base pairs**: az↔en, be↔en, tr↔en, uk↔en (pairs involving English)
 - **Target pairs**: az↔tr, be↔uk (within-family pairs)
 - **Transfer protocol**: Train on base pairs, evaluate on target pairs
 
 ### Evaluation Metrics
+
 - **BLEU**: Word-level n-gram precision with brevity penalty
 - **chrF**: Character-level F-scores for morphological variation
 
 ## Results
 
 Our experiments show substantial improvements:
+
 - **Baseline (zero-shot)**: BLEU ~0.87, chrF ~9.63
 - **LoRA fine-tuned**: BLEU ~44.12, chrF ~59.54
 - **Improvement**: 37x better BLEU, demonstrating effective cross-lingual transfer
 
 ## Project Structure
 
-```
+```text
 DL4NLP/
 ├── src/                       # Source code
 │   ├── train_lora.py          # Main LoRA training script
@@ -161,6 +169,7 @@ DL4NLP/
 ## Command Line Arguments
 
 ### train_lora.py
+
 - `--model`: Model size (270m, 1b)
 - `--epochs`: Number of training epochs (default: 3)
 - `--batch_size`: Training batch size (default: 4)
@@ -172,6 +181,7 @@ DL4NLP/
 - `--max_eval_samples`: Limit evaluation examples
 
 ### baseline_eval.py
+
 - `--model`: Model size (270m, 1b)
 - `--eval_pair_policy`: Evaluation pairs (base, target, all)
 - `--max_eval_samples`: Limit evaluation examples
@@ -180,6 +190,7 @@ DL4NLP/
 ## Reproducibility
 
 All experiments are fully reproducible with:
+
 - Fixed random seeds
 - Command-line parameter specification
 - Saved LoRA adapters and tokenizer states
