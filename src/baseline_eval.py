@@ -7,6 +7,7 @@ import json
 import logging
 import pickle
 import argparse
+import random
 from pathlib import Path
 from typing import Dict, List, Optional
 import os
@@ -98,6 +99,7 @@ class BaselineEvaluator:
         if not all_examples:
             raise FileNotFoundError(f"No {split} data could be loaded.")
 
+        random.shuffle(all_examples)
         return Dataset.from_list(all_examples)
 
     def evaluate_dataset(self, dataset: Dataset) -> Dict[str, float]:

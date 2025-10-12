@@ -7,6 +7,7 @@ import json
 import logging
 import pickle
 import argparse
+import random
 from pathlib import Path
 from typing import List, Optional
 import os
@@ -95,7 +96,7 @@ class LoRAFinetuner:
                                 keep = True
                             elif pair_policy == "base":
                                 # Base pairs involve English on either side
-                                keep = (src_lang == "en" or tgt_lang == "en")
+                                keep = src_lang == "en" or tgt_lang == "en"
                             elif pair_policy == "target":
                                 # Target pairs are within the related-language subset per triad
                                 target_set = None
@@ -104,7 +105,10 @@ class LoRAFinetuner:
                                 elif "be_uk" in group:
                                     target_set = {"be", "uk"}
                                 if target_set is not None:
-                                    keep = (src_lang in target_set and tgt_lang in target_set)
+                                    keep = (
+                                        src_lang in target_set
+                                        and tgt_lang in target_set
+                                    )
                             if keep:
                                 all_examples.append(
                                     {
@@ -117,6 +121,7 @@ class LoRAFinetuner:
         if not all_examples:
             raise FileNotFoundError(f"No {split} data could be loaded.")
 
+        random.shuffle(all_examples)
         return Dataset.from_list(all_examples)
 
     def _preprocess_function(self, examples):
@@ -210,23 +215,41 @@ class LoRAFinetuner:
         logger.info("Starting LoRA fine-tuning.")
 
         # Load and preprocess data
-        train_dataset = self._load_and_prepare_data("train", pair_policy=self.train_pair_policy)
+        train_dataset = self._load_and_prepare_data(
+            "train", pair_policy=self.train_pair_policy
+        )
         tokenized_train_dataset = train_dataset.map(
             self._preprocess_function, batched=True
         )
 
-        eval_dataset = self._load_and_prepare_data("dev", pair_policy=self.eval_pair_policy)
+        eval_dataset = self._load_and_prepare_data(
+            "dev", pair_policy=self.eval_pair_policy
+        )
         tokenized_eval_dataset = eval_dataset.map(
             self._preprocess_function, batched=True
         )
 
         # Optionally subsample for speed
-        if self.max_train_samples is not None and len(tokenized_train_dataset) > self.max_train_samples:
-            tokenized_train_dataset = tokenized_train_dataset.select(range(self.max_train_samples))
-            logger.info(f"Subsampled train dataset to {len(tokenized_train_dataset)} examples")
-        if self.max_eval_samples is not None and len(tokenized_eval_dataset) > self.max_eval_samples:
-            tokenized_eval_dataset = tokenized_eval_dataset.select(range(self.max_eval_samples))
-            logger.info(f"Subsampled eval dataset to {len(tokenized_eval_dataset)} examples")
+        if (
+            self.max_train_samples is not None
+            and len(tokenized_train_dataset) > self.max_train_samples
+        ):
+            tokenized_train_dataset = tokenized_train_dataset.select(
+                range(self.max_train_samples)
+            )
+            logger.info(
+                f"Subsampled train dataset to {len(tokenized_train_dataset)} examples"
+            )
+        if (
+            self.max_eval_samples is not None
+            and len(tokenized_eval_dataset) > self.max_eval_samples
+        ):
+            tokenized_eval_dataset = tokenized_eval_dataset.select(
+                range(self.max_eval_samples)
+            )
+            logger.info(
+                f"Subsampled eval dataset to {len(tokenized_eval_dataset)} examples"
+            )
 
         # Define training arguments
         training_args = TrainingArguments(
@@ -290,14 +313,23 @@ class LoRAFinetuner:
 
         # Evaluate on the test set
         logger.info("Evaluating on the test set.")
-        test_dataset = self._load_and_prepare_data("test", pair_policy=self.eval_pair_policy)
+        test_dataset = self._load_and_prepare_data(
+            "test", pair_policy=self.eval_pair_policy
+        )
         tokenized_test_dataset = test_dataset.map(
             self._preprocess_function, batched=True
         )
         # Optionally subsample test as well
-        if self.max_eval_samples is not None and len(tokenized_test_dataset) > self.max_eval_samples:
-            tokenized_test_dataset = tokenized_test_dataset.select(range(self.max_eval_samples))
-            logger.info(f"Subsampled test dataset to {len(tokenized_test_dataset)} examples")
+        if (
+            self.max_eval_samples is not None
+            and len(tokenized_test_dataset) > self.max_eval_samples
+        ):
+            tokenized_test_dataset = tokenized_test_dataset.select(
+                range(self.max_eval_samples)
+            )
+            logger.info(
+                f"Subsampled test dataset to {len(tokenized_test_dataset)} examples"
+            )
         test_results = trainer.evaluate(eval_dataset=tokenized_test_dataset)
         logger.info(f"Test evaluation results: {test_results}")
 

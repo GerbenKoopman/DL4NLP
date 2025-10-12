@@ -136,28 +136,15 @@ class GemmaTranslationModel:
                         "MPS: using float32, gradient checkpointing disabled, use_cache=False"
                     )
 
-            else:
-                # Standard model loading without LoRA
-                if self.device == "mps":
-                    # Use float32 on MPS for inference stability too
-                    model_dtype = torch.float32
-                    device_map = None
-                elif self.device == "cuda":
-                    model_dtype = torch.bfloat16
-                    device_map = "auto"
-                else:
-                    model_dtype = torch.float32
-                    device_map = None
-
-                self.model = AutoModelForCausalLM.from_pretrained(
-                    self.model_name,
-                    device_map=device_map,
-                    dtype=model_dtype,
-                    attn_implementation="eager",
-                    low_cpu_mem_usage=True,
-                    token=token,
-                    trust_remote_code=True,
-                )
+            self.model = AutoModelForCausalLM.from_pretrained(
+                self.model_name,
+                device_map=device_map,
+                dtype=model_dtype,
+                attn_implementation="eager",
+                low_cpu_mem_usage=True,
+                token=token,
+                trust_remote_code=True,
+            )
 
             # Set model to eval mode unless we are training
             if not self.use_lora:

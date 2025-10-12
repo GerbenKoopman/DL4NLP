@@ -7,6 +7,7 @@ import json
 import logging
 import pickle
 import argparse
+import random
 from pathlib import Path
 from typing import Dict, List, Optional
 import os
@@ -103,6 +104,7 @@ class ReptileEvaluator:
         logger.info(
             f"Loaded {len(all_tasks)} test examples from groups: {', '.join(self.language_groups)}"
         )
+        random.shuffle(all_tasks)
         return all_tasks
 
     def _process_raw_data(self):
@@ -353,7 +355,10 @@ def main():
         description="Evaluate Reptile meta-learning for translation"
     )
     parser.add_argument(
-        "--model", choices=["270m", "1b", "4b"], default="1b", help="Model size to evaluate"
+        "--model",
+        choices=["270m", "1b", "4b"],
+        default="1b",
+        help="Model size to evaluate",
     )
     parser.add_argument(
         "--output_dir",
@@ -424,7 +429,9 @@ def main():
 
     # Determine adapter path (default to output_dir/adapters/<model>_<adapter_mode>)
     model_name = model_mapping[args.model].split("/")[-1]
-    default_adapter_dir = Path(args.output_dir) / "adapters" / f"{model_name}_{args.adapter_mode}"
+    default_adapter_dir = (
+        Path(args.output_dir) / "adapters" / f"{model_name}_{args.adapter_mode}"
+    )
     resolved_adapter_dir = args.adapter_dir or str(default_adapter_dir)
     logger.info(f"Using adapter directory: {resolved_adapter_dir}")
 
